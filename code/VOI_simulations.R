@@ -17,7 +17,7 @@ library(cowplot)
 source(here("code","theme_Publication.R")) #graphing hack 1
 source(here("code","multiplot.R")) #graphic hack 2
 source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","MSE_Model_Conservative.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source(here("code","MSE_Model_JS.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 
 ##########################################################################################################################
@@ -31,17 +31,17 @@ source(here("code","ModelParameters_v1.R")) # base parameters
 
 #Set Number of Iterations and Seeds for Phi and Process for each of the simulations below
 
-n.iters = 2
+n.iters = 50
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
 
 B.start <- 50 #starting biomass
 avec <- seq(10,30,by = 10) #vector of tippint points
-phivec <- seq(0.0,0.5,by=.01) #vecor of accuracy
-FMSYvec <- seq(.1,2,by=0.01) #manipulating  max.F my a multiplier
-ar <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
-dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","biomass","CumYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec))
+phivec <- seq(0.0,0.5,by=.1) #vecor of accuracy
+FMSYvec <- seq(.1,2,by=0.1) #manipulating  max.F my a multiplier
+ar1 <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
+dimnames(ar1) = list(FMSYvec,c("NPV","Prob.Cross.TP","biomass","CumYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec))
 
 # mfmat<-nrow(expand.grid(avec,phivec,FMSYvec))
 
@@ -68,19 +68,19 @@ for(a in 1:length(avec)){
       print(phivec[j])
       print(FMSYvec[i])
       
-      ar[i,1,j,a] <-median(c(value[[1]]))  #NPV
-      ar[i,2,j,a] <-sum(value[[3]])/n.iters #p tip
-      ar[i,3,j,a] <-median(value[[6]]) #biomass
-      ar[i,4,j,a] <-sum(value[[7]]) #Cumulative Yield
-      ar[i,5,j,a] <-sd(value[[6]]) #sd biomass
-      ar[i,6,j,a] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
-      ar[i,7,j,a] <-Fmsy
-      ar[i,8,j,a] <-max.F.2
+      ar1[i,1,j,a] <-median(c(value[[1]]))  #NPV
+      ar1[i,2,j,a] <-sum(value[[3]])/n.iters #p tip
+      ar1[i,3,j,a] <-median(value[[6]]) #biomass
+      ar1[i,4,j,a] <-sum(value[[7]]) #Cumulative Yield
+      ar1[i,5,j,a] <-sd(value[[6]]) #sd biomass
+      ar1[i,6,j,a] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
+      ar1[i,7,j,a] <-Fmsy
+      ar1[i,8,j,a] <-max.F.2
     }
   }
 }
 
-save(ar1,here("output",file=paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
+save(ar1,file=here("output/simulation",paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
 
 source(here("code","ModelParameters_v1.R") # base parameters
 
@@ -155,7 +155,7 @@ print(g2)
 
 #what is the cv necessary to get 5% chance of collapse for differen pFmys
 
-df_3b <- subset(df1, TP == "A = 10")
+df_3b <- subset(df1, TP == "A = 20")
 
 df.01 <- subset(df_3b,Prob.Cross.TP<0.01)
 df.05 <- subset(df_3b,Prob.Cross.TP<0.05)
@@ -197,7 +197,7 @@ print(g3)
 
 #what is the cv necessary to get 5% chance of crossing mgmt threshold for differen pFmys
 
-df_3c <- subset(df1, TP == "A = 10")
+df_3c <- subset(df1, TP == "A = 20")
 
 df.01 <- subset(df_3c,Ptip.MGMT<0.01)
 df.05 <- subset(df_3c,Ptip.MGMT<0.05)
@@ -276,20 +276,21 @@ multiplot(g1,g3,g4, cols=1)
 setwd("~/Dropbox/Projects/In Progress/Value of Information/Code/Value of Information")
 
 #AS's code with "repeat.model2" function
-source("ModelParameters_v1.R") # base parameters
+source(here("code","ModelParameters_v1.R")) # base parameters
 
 B.lim <- 30
 years = 20
-B.vec <- seq(1,100, by = 1)
+B.vec <- seq(1,100, by = 10)
 avec <- seq(10,30,by = 10) #biomass at which allee effect occurs
-phivec <- seq(0.1,0.5,by=.01) #uncertainty cv
-FMSYvec <- seq(.1,2,by = 0.1) #manipulating FMSY max.F
+phivec <- seq(0.1,0.5,by=.1) #uncertainty cv
+FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 
 ar <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec),length(B.vec)))
 dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec),B.vec)
 
 
-n.iters = 1000
+
+n.iters = 100
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -328,13 +329,13 @@ for(b in seq(B.vec)){
   }
 }
 
-save(ar,file=paste("range_of_bstart",Sys.Date(),n.iters,".Rdata"))
+save(ar,file=here("output",paste("range_of_bstart",Sys.Date(),n.iters,".Rdata")))
 
 
 #ar has 5 dimmensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so divisoin or substractoin of the arry ais just the values of NPV 
 #not any other variables, which are the col and rownames
-load(here("output/simulation","range_of_bstart 2015-09-18 20000 .Rdata"))
+# load(here("output/simulation","range_of_bstart 2015-09-18 20000 .Rdata"))
 source(here("code","ModelParameters_v1.R")) # reset base parameters after simulation (specifically max.F)
 
 #########
@@ -362,7 +363,7 @@ ggplot(df1,aes(x=B.start,y=pFmsy))+
 
 
 #Median Biomass over time series for given tipping point (10) CV, an max F
-df2 <- subset(df1,B.start ==50 & TP=="A = 20")
+df2 <- subset(df1,B.start ==40 & TP=="A = 0")
 
 ggplot(df2,aes(x=pFmsy,y=Biomass,group=CV))+
   geom_line(aes(colour=CV))+
@@ -378,7 +379,7 @@ ggsave(here("output","figures","original","Biomass_CV_Fmsy.pdf"))
 #########
 #Biomass
 #########
-df3 <- subset(df1,TP=="A = 20")
+df3 <- subset(df1,TP=="A = 30")
 
 
 ggplot(df3,aes(x=B.start,y=CV))+
@@ -472,7 +473,15 @@ ggsave(here("output","figures","original","cyield_bstart_cv_pfmsy.pdf"),width=10
 #########
 
 #NPV 0.1 - NPV 0.5
-npv_diff<-(ar[,1,c(1),1,]-ar[,1,c(5),1,])
+
+#entire fmsy vec cause you want acrross that
+#1 is the NPV column 
+#c(1) is the phivec but careful if you run it for longer
+#1 is the avec so a=10 but could change with the vecot offered
+#entire b vec cause simulating accoss that 
+
+
+npv_diff<-(ar[,1,c(1),2,]-ar[,1,c(5),2,])
 npv_diff<-melt(npv_diff)
 names(npv_diff)<-c("pFmsy","B.start","roi")
 
@@ -483,7 +492,7 @@ names(npv_diff)<-c("pFmsy","B.start","roi")
 gs_diff <- ggplot(npv_diff,aes(x=B.start,y=roi,group=pFmsy))+
   annotate("text", x = 20, y = 1, label = "TP")+
   annotate("text", x = B.lim, y = 1, label = "Blim")+
-  geom_vline(xintercept=20,lty=2,colour="grey",size=1.5)+
+  geom_vline(xintercept=30,lty=2,colour="grey",size=1.5)+
   geom_vline(xintercept=B.lim,lty=3,colour="darkgrey",size=1.5)+
   geom_line(aes(colour=pFmsy))+
   scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
@@ -504,8 +513,8 @@ gh_diff <- ggplot(npv_diff,aes(x = B.start, y = pFmsy))+
   
 print(gh_diff)
 
-#NPV 0.1 - NPV 0.5
-npv_ratio<-(ar[,1,c(1),1,]/ar[,1,c(5),1,])
+#NPV 0.1 - NPV 0.5, A=30 -->3 at end
+npv_ratio<-(ar[,1,c(1),3,]/ar[,1,c(5),3,])
 npv_ratio<-melt(npv_ratio)
 names(npv_ratio)<-c("pFmsy","B.start","roi")
 
@@ -536,7 +545,7 @@ gs_ratio <- ggplot(npv_ratio2,aes(x=B.start,y=roi,group=pFmsy))+
   #annotate("text", x = avec[2], y = 1, label = "TP")+
   #annotate("text", x = B.lim, y = 1, label = "Blim")+
   scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy")+
-  scale_y_log10(limits=c(1,10),breaks=c(1,5,10))+
+  # scale_y_log10(limits=c(1,10),breaks=c(1,5,10))+
   # scale_y_continuous(limits=c(0.5,8),breaks=c(1,2,3,4,5,6,7,8))+
   #scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
   xlab("Starting Standing Stock Biomass")+
