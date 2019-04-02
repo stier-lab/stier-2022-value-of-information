@@ -327,7 +327,7 @@ dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
 
 
 
-n.iters = 100
+n.iters = 200
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -373,7 +373,8 @@ save(ar,file=here("output",paste("range_of_bstart_conservative",Sys.Date(),n.ite
 #ar has 5 dimmensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so divisoin or substractoin of the arry ais just the values of NPV 
 #not any other variables, which are the col and rownames
-load(here("output/simulation","range_of_bstart 2015-09-18 20000 .Rdata"))
+load(here("output/simulation","range_of_bstart 2015-09-18 20000 .Rdata")) #this is the original simulatoin
+load(here("output/simulation","range_of_bstart 2019-04-02 200 .Rdata")) #this is the conservative simulatoin
 source(here("code","ModelParameters_v1.R")) # reset base parameters after simulation (specifically max.F)
 
 #########
