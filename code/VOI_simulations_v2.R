@@ -316,9 +316,8 @@ setwd("~/Dropbox/Projects/In Progress/Value of Information/Code/Value of Informa
 #AS's code with "repeat.model2" function
 source(here("code","ModelParameters_v1.R")) # base parameters
 
-B.lim <- 30
 years = 20
-B.vec <- seq(1,100, by = 10)
+B.vec <- seq(1,100, by = 5)
 avec <- seq(10,30,by = 10) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by=.1) #uncertainty cv
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
@@ -337,6 +336,8 @@ for(b in seq(B.vec)){
   for(a in seq(avec)){  
     for(j in seq(phivec)){
       for (i in seq(FMSYvec)){
+        
+        print(B.vec[b])
         
         #dictate the monitoring investment as fixed
         phi.CV.low=phi.CV.high=phivec[j]
@@ -367,8 +368,7 @@ for(b in seq(B.vec)){
   }
 }
 
-save(ar,file=here("output",paste("range_of_bstart",Sys.Date(),n.iters,".Rdata")))
-
+save(ar,file=here("output",paste("range_of_bstart_conservative",Sys.Date(),n.iters,".Rdata")))
 
 #ar has 5 dimmensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so divisoin or substractoin of the arry ais just the values of NPV 
@@ -401,7 +401,7 @@ ggplot(df1,aes(x=B.start,y=pFmsy))+
 
 
 #Median Biomass over time series for given tipping point (10) CV, an max F
-df2 <- subset(df1,B.start ==40 & TP=="A = 10")
+df2 <- subset(df1,B.start ==91 & TP=="A = 10")
 
 ggplot(df2,aes(x=pFmsy,y=Biomass,group=CV))+
   geom_line(aes(colour=CV))+
@@ -493,7 +493,7 @@ ggsave(here("output","figures","original","NPV_bstart_cv_pfmsy.pdf"),width=10,he
 #Cumulative Yield as function of SSB and CV 
 #########
 
-df4<-subset(df1,pFmsy == 1 & TP == "A = 20" & CV %in% c(0.1,0.5))
+df4<-subset(df1,pFmsy == 1 & TP == "A = 10" & CV %in% c(0.1,0.5))
 
 ggplot(df4,aes(x=B.start,y=CV))+
   geom_tile(aes(fill=CumulativeYield,colour=CumulativeYield))+
@@ -518,46 +518,68 @@ ggsave(here("output","figures","original","cyield_bstart_cv_pfmsy.pdf"),width=10
 #1 is the avec so a=10 but could change with the vecot offered
 #entire b vec cause simulating accoss that 
 
+dimnames(ar) #look at dimemnsions of simulation 
+# [[1]] is Fmsy vec
+# [[2]] is output from simulation
+# [[3]] i CV monitoring
+# [[4]] is location of tipping point "A"
+# [[5]] is starting biomass of simulation 
 
-npv_diff<-(ar[,1,c(1),2,]-ar[,1,c(5),2,])
+####ROI as difference of NPV 0.1 - NPV 0.5
+
+#the second to last index is for a so 1 - A=10, 2- A=20, 3-A=30
+npv_diff<-(ar[,1,c(1),1,]-ar[,1,c(5),1,])
 npv_diff<-melt(npv_diff)
 names(npv_diff)<-c("pFmsy","B.start","roi")
 
 #calculate Return on Investment, the ratio between high and low CV
 
-
-#Slice Plot DIFFERENCE 
-gs_diff <- ggplot(npv_diff,aes(x=B.start,y=roi,group=pFmsy))+
-  annotate("text", x = 20, y = 1, label = "TP")+
-  annotate("text", x = B.lim, y = 1, label = "Blim")+
-  geom_vline(xintercept=30,lty=2,colour="grey",size=1.5)+
-  geom_vline(xintercept=B.lim,lty=3,colour="darkgrey",size=1.5)+
-  geom_line(aes(colour=pFmsy))+
-  scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
-  xlab("Starting Standing Stock Biomass")+
-  ylab("Return on Investment (NPV(CV.1) - NPV(CV.5)")+
-    theme_pubr(legend="right")
-  
-print(gs_diff)
-
-#heatmap to show hump at 0.7-0.8 FMSY
-gh_diff <- ggplot(npv_diff,aes(x = B.start, y = pFmsy))+
+heat_diff <- ggplot(npv_diff,aes(x = B.start, y = pFmsy))+
   geom_tile(aes(fill=roi,colour=roi))+
   scale_fill_gradient(low="dodgerblue",high="firebrick")+
   scale_colour_gradient(low="dodgerblue",high="firebrick")+
   xlab("Starting Biomass")+
   ylab("pFmsy")+
+  theme_pubr(legend="right")
+
+print(heat_diff)
+
+
+#Slice Plot DIFFERENCE 
+gs_diff <- ggplot(npv_diff,aes(x=B.start,y=roi,group=pFmsy))+
+  annotate("text", x = 20, y = 1, label = "TP")+
+  # annotate("text", x = B.lim, y = 1, label = "Blim")+
+  geom_vline(xintercept=30,lty=2,colour="grey",size=1.5)+
+  # geom_vline(xintercept=B.lim,lty=3,colour="darkgrey",size=1.5)+
+  geom_line(aes(colour=pFmsy))+
+  scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
+  xlab("Starting Standing Stock Biomass")+
+  ylab("ROI (NPV(CV.1) - NPV(CV.5)")+
     theme_pubr(legend="right")
   
-print(gh_diff)
+print(gs_diff)
 
-#NPV 0.1 - NPV 0.5, A=30 -->3 at end
-npv_ratio<-(ar[,1,c(1),3,]/ar[,1,c(5),3,])
+
+####ROI as Ratio of NPV 0.1 / NPV 0.5
+
+#NPV 0.1 / NPV 0.5, 
+npv_ratio<-(ar[,1,c(1),1,]/ar[,1,c(5),1,])
 npv_ratio<-melt(npv_ratio)
 names(npv_ratio)<-c("pFmsy","B.start","roi")
 
+#heatmap of all simulations
+heat_ratio <- ggplot(npv_ratio,aes(x = B.start, y = pFmsy))+
+  geom_tile(aes(fill=roi,colour=roi))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("Starting Biomass")+
+  ylab("pFmsy")+
+  theme_pubr(legend="right")
 
-#Slice Plot difference 
+print(heat_ratio)
+
+
+#Slice Plot just subset of lines  
 gs_ratio <- ggplot(npv_ratio,aes(x=B.start,y=roi,group=pFmsy))+
   geom_vline(xintercept=10,lty=2,colour="grey",size=1)+
   geom_vline(xintercept=B.lim,lty=3,colour="darkgrey",size=1)+
@@ -567,16 +589,16 @@ gs_ratio <- ggplot(npv_ratio,aes(x=B.start,y=roi,group=pFmsy))+
   scale_colour_gradient(low="dodgerblue",high="firebrick")+
   #scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
   xlab("Starting Standing Stock Biomass")+
-  ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)")+
-    theme_pubr(legend="right")+
-  scale_y_log10()
+  ylab("ROI (NPV(CV.1) / NPV(CV.5)")+
+    theme_pubr(legend="right")#+
+  # scale_y_log10()
 
 print(gs_ratio)
 
 npv_ratio2<-subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
 # npv_ratio2$roi<-log10(npv_ratio2$roi)
 
-gs_ratio <- ggplot(npv_ratio2,aes(x=B.start,y=roi,group=pFmsy))+
+gs_ratio2 <- ggplot(npv_ratio2,aes(x=B.start,y=roi,group=pFmsy))+
   geom_vline(xintercept=10,lty=2,colour="grey",size=1)+
   geom_vline(xintercept=0.25*Bmsy,lty=3,colour="darkgrey",size=1)+
   geom_line(aes(colour=pFmsy))+
@@ -590,14 +612,11 @@ gs_ratio <- ggplot(npv_ratio2,aes(x=B.start,y=roi,group=pFmsy))+
   ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)")+
     theme_pubr(legend="right")
   
-print(gs_ratio)
+print(gs_ratio2)
 
 
-ggsave(here("output","figures","original","ROI_original.pdf"),width=5,height=5)
-
-
-
-multiplot(gs_diff,gs_ratio)
+# ggsave(here("output","figures","original","ROI_original.pdf"),width=5,height=5)
+# multiplot(gs_diff,gs_ratio)
 
 
 #Proximity to Tipping Point
@@ -607,16 +626,15 @@ multiplot(gs_diff,gs_ratio)
 npv_ratio2$prox<- -1*(npv_ratio2$B.start)
 npv_ratio2<-subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
 
-gs_ratio <- ggplot(npv_ratio2,aes(x=prox,y=roi,group=pFmsy))+
+gs_ratio3 <- ggplot(npv_ratio2,aes(x=prox,y=roi,group=pFmsy))+
   geom_vline(xintercept=-10,lty=2,colour="grey",size=1)+
   geom_vline(xintercept=-0.25*Bmsy,lty=3,colour="darkgrey",size=1)+
   geom_line(aes(colour=pFmsy))+
   # geom_smooth(aes(colour=pFmsy),se=F)+
-  
   #annotate("text", x = avec[2], y = 1, label = "TP")+
   #annotate("text", x = B.lim, y = 1, label = "Blim")+
   scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy")+
-  scale_y_log10(limits=c(1,10),breaks=c(1,5,10))+
+  # scale_y_log10(limits=c(1,10),breaks=c(1,5,10))+
   scale_x_continuous(limits=c(-100,-5),breaks=c(-100,-75,-50,-25))+
   # scale_y_continuous(limits=c(0.5,8),breaks=c(1,2,3,4,5,6,7,8))+
   #scale_colour_gradient(low="#e0ecf4",high="#8856a7")+
@@ -624,26 +642,13 @@ gs_ratio <- ggplot(npv_ratio2,aes(x=prox,y=roi,group=pFmsy))+
   ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)")+
     theme_pubr(legend="right")
 
-print(gs_ratio)
+print(gs_ratio3)
 
-
-#heatmap to show hump at 0.7-0.8 FMSY
-gh_ratio <- ggplot(npv_ratio,aes(x = B.start, y = pFmsy))+
-  geom_tile(aes(fill=roi,colour=roi))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("Starting Biomass")+
-  ylab("pFmsy")+
-    theme_pubr(legend="right")
-  
-print(gh_ratio) 
-
-multiplot(gs_ratio,gh_ratio,gs_diff,gh_diff,cols=2)
 
 
 #combine but the dimmensions still need work to reproduce nice figure 
-roi_plot <- plot_grid(gs_ratio,gh_ratio,gs_diff,ncol=1,labels="AUTO")
-save_plot(here("output/figures/original","multiplot_diff_ratio_ROI.pdf"),roi_plot,base_width=6,base_height=16) 
+roi_plot <- plot_grid(heat_diff,heat_ratio,gs_diff,gs_ratio,ncol=2,labels="AUTO")
+save_plot(here("output/figures/original","multiplot_diff_ratio_ROI_A=30_original.pdf"),roi_plot,base_width=8,base_height=5) 
 
 
 
