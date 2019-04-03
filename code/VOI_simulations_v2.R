@@ -368,7 +368,7 @@ for(b in seq(B.vec)){
   }
 }
 
-save(ar,file=here("output",paste("range_of_bstart_conservative",Sys.Date(),n.iters,".Rdata")))
+save(ar,file=here("output/simulations",paste("range_of_bstart_conservative",Sys.Date(),n.iters,".Rdata")))
 
 #ar has 5 dimmensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so divisoin or substractoin of the arry ais just the values of NPV 
@@ -529,7 +529,7 @@ dimnames(ar) #look at dimemnsions of simulation
 ####ROI as difference of NPV 0.1 - NPV 0.5
 
 #the second to last index is for a so 1 - A=10, 2- A=20, 3-A=30
-npv_diff<-(ar[,1,c(1),1,]-ar[,1,c(5),1,])
+npv_diff<-(ar[,1,c(1),3,]-ar[,1,c(5),3,])
 npv_diff<-melt(npv_diff)
 names(npv_diff)<-c("pFmsy","B.start","roi")
 
@@ -564,7 +564,7 @@ print(gs_diff)
 ####ROI as Ratio of NPV 0.1 / NPV 0.5
 
 #NPV 0.1 / NPV 0.5, 
-npv_ratio<-(ar[,1,c(1),1,]/ar[,1,c(5),1,])
+npv_ratio<-(ar[,1,c(1),3,]/ar[,1,c(5),3,])
 npv_ratio<-melt(npv_ratio)
 names(npv_ratio)<-c("pFmsy","B.start","roi")
 
@@ -649,7 +649,7 @@ print(gs_ratio3)
 
 #combine but the dimmensions still need work to reproduce nice figure 
 roi_plot <- plot_grid(heat_diff,heat_ratio,gs_diff,gs_ratio,ncol=2,labels="AUTO")
-save_plot(here("output/figures/original","multiplot_diff_ratio_ROI_A=30_original.pdf"),roi_plot,base_width=8,base_height=5) 
+save_plot(here("output/figures/original","multiplot_diff_ratio_ROI_A=30_conservative.pdf"),roi_plot,base_width=8,base_height=5) 
 
 
 
