@@ -72,6 +72,9 @@ est.NPV<-function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.sta
                           phi.CV.low,
                           phi.CV.high)
     
+    #an alternative "adaptive"S model would be to have phi.CV be a more dynamic/continous function of Bhat relative to B.crit. e.g. CV monitoring expoentially decreases as Bhat decreases
+    #coding it this way would ber cool but would require some retooling because in this MSE the CVs are generated before the run and then pulled at each time step. 
+    #or maybe an uglier way of doing that woudl be to have a more complicated if stmt to have categories of % greater that B.crit, tho that'd be a little crude
     
     #     if(Bhat.vec[i]>B.crit) phi.CV[i+1] <-phi.CV.high
     #     if(Bhat.vec[i]<B.crit) phi.CV[i+1] <-phi.CV.low
