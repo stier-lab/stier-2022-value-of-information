@@ -13,11 +13,17 @@ library(tidyverse)
 library(cowplot)
 
 
-
-source(here("code","theme_Publication.R")) #graphing hack 1
-source(here("code","multiplot.R")) #graphic hack 2
 source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","MSE_Model_conservative.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source(here("code","MSE_Model_JS.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+
+
+gc <- guide_colorbar(
+  frame.colour = "black",
+  barheight = 8,
+  frame.linewidth = 2,
+  ticks.colour = "black",
+  ticks.linewidth = 2
+        )
 
 
 ##########################################################################################################################
@@ -418,7 +424,7 @@ ggsave(here("output","figures","original","Biomass_CV_Fmsy.pdf"))
 #########
 #Biomass
 #########
-df3 <- subset(df1,TP=="A = 10")
+df3 <- subset(df1,TP=="A = 30")
 
 
 ggplot(df3,aes(x=B.start,y=CV))+
@@ -471,6 +477,16 @@ ggplot(df3,aes(x=B.start,y=CV))+
 
 ggsave(here("output","figures","original","NPV_bstart_cv_pfmsy.pdf"),width=10,height=20)
 
+
+#########
+#Catch as a fcn of biomass and cv 
+#########
+ggplot(df3,aes(x=B.start,y=pFmsy))+
+  geom_tile(aes(fill=CumulativeYield,colour=CumulativeYield))+
+  scale_fill_gradient(name="CumulativeYield",low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(name="CumulativeYield",low="dodgerblue",high="firebrick")+
+  theme_pubr(legend="right")+
+  facet_wrap(~CV,ncol=2)
 
 
 #slice out 0.1 and 0.5 and single pFmsy 
@@ -757,11 +773,10 @@ ggsave("StartingDens_CV_barplot.pdf")
 ##########################################################################################################################
 
 
-#source(here("code","MSE_Model_JS.R"))#
 source(here("code","MSE_Model_JS.R"))#l
 source(here("code","ModelParameters_v1.R"))
 
-n.iters=500
+n.iters=50
 procnoisevec <- seq(0,2,by=0.1)
 phivec <- seq(0.1,0.5,by=0.05) #uncertainty cv
 
@@ -782,7 +797,7 @@ for(i in 1:nrow(cb)){
   
   phi.CV.low=phi.CV.high=emat[i,1]
   
-  value <-repeat.model2(n.iters,B.start=100,B.lim,years,K,A,r,phi.CV,delta,process.noise=emat[i,2],p,max.=max.F,phi.seeds,process.seeds)
+  value <-repeat.model2(n.iters,B.start=75,B.lim,years,K,A,r,phi.CV,delta,process.noise=emat[i,2],p,max.=max.F,phi.seeds,process.seeds)
     
   emat[i,3] <-median(c(value[[1]]))  #NPV
   emat[i,4] <-sum(value[[3]])/n.iters #p tip
@@ -799,12 +814,14 @@ noise_df_NPV <- gather(as.data.frame(emat),"NPV","ptip","biomass","cumulative_yi
 
 
 noise_NPV<-ggplot(noise_df_NPV,aes(x= process_noise, y=precision))+
-             geom_tile(aes(fill=value))+
-             theme_pubr()+
+             geom_tile(aes(fill=value,colour=value))+
+             theme_pubr(legend="right")+
              ylab("monitoring CV")+
              xlab("Process Noise")+
-            scale_fill_gradient(low="#80BE9E",high="#F98866",name="NPV")
+             scale_fill_gradient(low="#80BE9E",high="#F98866",name="NPV", guide = gc)+
+             scale_colour_gradient(low="#80BE9E",high="#F98866",name="NPV", guide = gc)
 
+npv_l <- get_legend(noise_NPV)
 
 noise_df_ptip <- gather(as.data.frame(emat),"NPV","ptip","biomass","cumulative_yield","sd-biomass","ptip_mgmt", 
                        key="response", 
@@ -812,11 +829,14 @@ noise_df_ptip <- gather(as.data.frame(emat),"NPV","ptip","biomass","cumulative_y
 
 
 noise_ptip<-ggplot(noise_df_ptip,aes(x= process_noise, y=precision))+
-  geom_tile(aes(fill=value))+
-  theme_pubr()+
+  geom_tile(aes(fill=value,colour=value))+
+  theme_pubr(legend="right")+
   ylab("monitoring CV")+
   xlab("Process Noise")+
-  scale_fill_gradient(low="#80BE9E",high="#F98866",name="Probability of tipping")
+  scale_fill_gradient(low="#80BE9E",high="#F98866",name="Ptip",guide= gc)+
+  scale_colour_gradient(low="#80BE9E",high="#F98866",name="Ptip", guide = gc)
+
+ptip_l <- get_legend(noise_ptip)
 
 
 noise_df_ptipmgmt <- gather(as.data.frame(emat),"NPV","ptip","biomass","cumulative_yield","sd-biomass","ptip_mgmt", 
@@ -825,57 +845,25 @@ noise_df_ptipmgmt <- gather(as.data.frame(emat),"NPV","ptip","biomass","cumulati
 
 
 noise_ptipmgmt<-ggplot(noise_df_ptipmgmt,aes(x= process_noise, y=precision))+
-  geom_tile(aes(fill=value))+
-  theme_pubr()+
+  geom_tile(aes(fill=value,colour=value))+
+  theme_pubr(legend="right")+
   ylab("monitoring CV")+
   xlab("Process Noise")+
-  scale_fill_gradient(low="#80BE9E",high="#F98866",name="Probability of Crossing Management Threshold")
+  scale_fill_gradient(low="#80BE9E",high="#F98866",name="Ptip MGMT",guide= gc)+
+  scale_colour_gradient(low="#80BE9E",high="#F98866",name="Ptip MGMT", guide = gc)
 
+ptipm_l <- get_legend(noise_ptipmgmt)
+  
 
 #combine but the dimmensions still need work to reproduce nice figure 
-conserv_plot <- plot_grid(noise_NPV,noise_ptip,noise_ptipmgmt,ncol=1)
-save_plot(here("output/figures","process_noise_cv_original_MSE_3_20_19.png"),conserv_plot,base_width=6,base_height=16) 
-
-
-      
-
-#something looks broken here - i'm varying across an extraordianry amount of process noise and it's not affecting 
-    
-
-##########################################################################################################################
-#Figure 4: adaptive monitoring
-##########################################################################################################################
-#wrote an additional piece of code to change monitoring depending on tipping
+conserv_plot <- plot_grid(noise_NPV+theme(legend.position="none"),noise_ptip+theme(legend.position="none"),noise_ptipmgmt+theme(legend.position="none"),ncol=1,labels="AUTO")
+conserve_plot2 <- plot_grid(npv_l,ptip_l,ptipm_l,ncol=1,align="hv")
+conserve_plot3 <- plot_grid(conserv_plot,conserve_plot2,axis="h",rel_widths=c(1,.3),align = 'h')
+conserve_plot3
+save_plot(here("output/figures","process_noise_cv_original_MSE_3_20_19.pdf"),conserve_plot3,base_width=6,base_height=10) 
 
 
 
-
-
-
-##########################################################################################################################
-#Extra Code. Fun But maybe for another paper:  bonanza-bust year dmonstration
-##########################################################################################################################
-
-
-
-##########################################################################################################################
-#FIGURE 3: How does the value of information change accross a range of stock biomassses
-##########################################################################################################################
-
-#TE's code with repeat.model function for a single F
-# years = 20
-# start.B.list<-seq(10,100,by=10)
-# max.F = Fmsy
-# Return.invest.out<-rep(NA,length(start.B.list))
-# 
-# for (i in 1:length(start.B.list)){
-#   Return.invest.out[i]<-repeat.model(n.iters,B.start=start.B.list[i],B.lim,lowCV=0.05,highCV=0.1,years,K,A,r,delta=.05,process.noise=0.0,p,max.F,c,phi.seeds,process.seeds)
-# }
-# 
-# par(las=1,mfrow=c(1,1))
-# plot(start.B.list,Return.invest.out,type="l",col="black",lwd=2,xlab="Initial Biomass",ylab="Return on Investment",xlim=c(10,100))
-# abline(v=A,lwd=2,lty="dotted")
-# 
 
 
 # #############################################################
