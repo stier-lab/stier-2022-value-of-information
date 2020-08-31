@@ -1,6 +1,6 @@
 # Figure 2 code
 
-# get outputs
+# get simulation outputs
 load(here("output","simulation","range_of_bstart 2015-09-18 20000 .Rdata")) #this is the original simulation. dataframe = ar
 source(here("code","ModelParameters_v1.R")) # reset base parameters after simulation (specifically max.F)
 
