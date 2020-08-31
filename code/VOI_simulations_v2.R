@@ -34,6 +34,7 @@ gc <- guide_colorbar(
 #across a surface. 
 
 source(here("code","ModelParameters_v1.R")) # base parameters
+source(here("code","theme_publication.R"))
 
 #Set Number of Iterations and Seeds for Phi and Process for each of the simulations below
 
@@ -87,8 +88,8 @@ for(a in 1:length(avec)){
 }
 
 
-# save(ar1,file=here("output/simulation",paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
-# load(here("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata")) #this is ignored on github will need to produce
+ save(ar1,file=here("output/simulation",paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
+ load(here("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata")) #this is ignored on github will need to produce
 
 source(here("code","ModelParameters_v1.R")) # base parameters
 
@@ -317,7 +318,7 @@ save_plot(here("output/figures/original",paste(df_3b$A[1],"aggregateplot_conserv
 ##########################################################################################################################
 #FIGURE 3: How does the value of information change accross a range of stock biomassses
 ##########################################################################################################################
-setwd("~/Dropbox/Projects/In Progress/Value of Information/Code/Value of Information")
+#setwd("~/Dropbox/Projects/In Progress/Value of Information/Code/Value of Information")
 
 #AS's code with "repeat.model2" function
 source(here("code","ModelParameters_v1.R")) # base parameters
@@ -379,8 +380,8 @@ save(ar,file=here("output/simulations",paste("range_of_bstart_conservative",Sys.
 #ar has 5 dimmensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so divisoin or substractoin of the arry ais just the values of NPV 
 #not any other variables, which are the col and rownames
-load(here("output/simulation","range_of_bstart 2015-09-18 20000 .Rdata")) #this is the original simulatoin
-load(here("output/simulation","range_of_bstart 2019-04-02 200 .Rdata")) #this is the conservative simulatoin
+load(here("output","simulation","range_of_bstart 2015-09-18 20000 .Rdata")) #this is the original simulatoin
+load(here("output","simulation","range_of_bstart 2019-04-02 100 .Rdata")) #this is the conservative simulatoin - MCS: doesn't include pFMSY ==1 
 source(here("code","ModelParameters_v1.R")) # reset base parameters after simulation (specifically max.F)
 
 #########
@@ -398,6 +399,7 @@ df1 = reshape(df1,
 
 colnames(df1) = c("pFmsy","CV","TP","B.start","NPV","Prob.Cross.TP","Biomass","CumulativeYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2")
 
+unique(df1$pFmsy)
 #where does boimass of fish peak relative to startig densities and fishing pressures
 ggplot(df1,aes(x=B.start,y=pFmsy))+
   geom_tile(aes(fill=Biomass,colour=Biomass))+
@@ -510,7 +512,7 @@ ggplot(df3,aes(x=B.start,y=pFmsy))+
 #Cumulative Yield as function of SSB and CV 
 #########
 
-df4<-subset(df1,pFmsy == 1 & TP == "A = 10" & CV %in% c(0.1,0.5))
+df4<-subset(df1,pFmsy == 1 & TP == "A = 10" & CV %in% c(0.1,0.5)) # MCS: df1 doesn't have a pFMSY == 1 combo
 
 ggplot(df4,aes(x=B.start,y=CV))+
   geom_tile(aes(fill=CumulativeYield,colour=CumulativeYield))+
