@@ -2,19 +2,11 @@
 #Value of Information Simulations 
 ##########################################
 
-#load packages
-library(ggplot2)
-library(reshape)
-library(gridExtra)
-library(here)
-library(ggpubr)
-library(ggthemes)
-library(tidyverse)
-library(cowplot)
 
 
+source("code/0_libraries.R"))
 source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","MSE_Model_JS.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source(here("code","MSE_Model.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 
 gc <- guide_colorbar(
@@ -775,7 +767,7 @@ ggsave("StartingDens_CV_barplot.pdf")
 ##########################################################################################################################
 
 
-source(here("code","MSE_Model_JS.R"))#l
+source(here("code","MSE_Model.R"))#l
 source(here("code","ModelParameters_v1.R"))
 
 n.iters=50
