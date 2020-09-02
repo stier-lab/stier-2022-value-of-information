@@ -3,10 +3,9 @@
 ##########################################
 
 
-
-source("code/0_libraries.R"))
-source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","MSE_Model.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source("code/0_libraries.R") #load packages that are relevant
+source("code/2_model_parameters.R") # base parameters
+source("code"/"3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 
 gc <- guide_colorbar(
