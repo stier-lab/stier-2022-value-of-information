@@ -79,7 +79,7 @@ for(a in 1:length(avec)){
 
 
  save(ar1,file=here("output/simulation",paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
- load(here("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata")) #this is ignored on github will need to produce
+ load("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata") #this is ignored on github will need to produce
 
 source("code/2_model_parameters.R") # base parameters
  
@@ -169,31 +169,35 @@ g1 = ggplot(df1a10,aes(x = CV, y = pFmsy))+
 #   theme_pubr(legend="right")
 print(g1)
 
-#Probability of crossing a tipping point accross Fmsy and CV monitoring - slice plot
-df2 <- subset(df1,CV %in% c(0.0,.1,.2,.3,.4,.5))
-df2 <- subset(df2,pFmsy %in% c(0.0,.1,.5,1,1.5,2))
+# #Probability of crossing a tipping point accross Fmsy and CV monitoring - slice plot
+# df2 <- subset(df1,CV %in% c(0.0,.1,.2,.3,.4,.5))
+# df2 <- subset(df2,pFmsy %in% c(0.0,.1,.5,1,1.5,2))
+# 
+# ggplot(df2,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
+#   geom_line(aes(colour=pFmsy))+
+#   scale_colour_gradient(low="#fee8c8",high="#e34a33")+
+#   facet_grid(TP~.)+
+#   xlab("CV of Monitoring")+
+#   ylab("Probability of Crossing a Tipping Point")+
+#   facet_grid(A~.)+
+#     theme_pubr(legend="right")
+# 
+# #just subset out a=10
+# df3 <- subset(df2,A == "A = 10")
+# 
+# g2 = ggplot(df3,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
+#   geom_line(aes(colour=pFmsy))+
+#   scale_colour_gradient(low="#fee8c8",high="#e34a33")+
+#   xlab("CV of Monitoring")+
+#   ylab("Probability of Crossing a Tipping Point")+
+#     theme_pubr(legend="right")
+# 
+# print(g2)
 
-ggplot(df2,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
-  geom_line(aes(colour=pFmsy))+
-  scale_colour_gradient(low="#fee8c8",high="#e34a33")+
-  facet_grid(TP~.)+
-  xlab("CV of Monitoring")+
-  ylab("Probability of Crossing a Tipping Point")+
-  facet_grid(A~.)+
-    theme_pubr(legend="right")
 
-#just subset out a=10
-df3 <- subset(df2,A == "A = 10")
-
-g2 = ggplot(df3,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
-  geom_line(aes(colour=pFmsy))+
-  scale_colour_gradient(low="#fee8c8",high="#e34a33")+
-  xlab("CV of Monitoring")+
-  ylab("Probability of Crossing a Tipping Point")+
-    theme_pubr(legend="right")
-
-print(g2)
-
+#########
+#FIGURE 3: safe operating space for biological and managmeent tipping points
+#########
 
 #what is the cv necessary to get 5% chance of collapse for differen pFmys
 
