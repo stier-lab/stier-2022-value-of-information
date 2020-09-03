@@ -1,3 +1,5 @@
+source("code/0_libraries.R") #load packages that are relevant
+
 #############################################################
 #Define the net present value for a fixed monitoring investment 
 #############################################################
@@ -107,29 +109,29 @@ est.NPV<-function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.sta
 # Test est.NPV function 
 ######
 
-source("code/ModelParameters_v1.R") # load base parameters
-
-mf0.5<-max.F*0.5
-mf1.3<-max.F*1.3
-mf1.9<-max.F*1.9
-phi.CV.low=phi.CV.high=0.0
-A=10
-B.start=85
-
-t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
-print(t)
-
-
-plot(t$phi.CV[-1])
-
-#Test
-sum(ci*exp(-cs*t$phi.CV),na.rm=T)
-
-#test cost function for monitoring
-cvec=seq(0.05,0.5,by=0.01)
-
-cm2=ci*exp(-cs*cvec)
-plot(cvec,cm2,type="l")
+# source("code/2_model_parameters.R") # load base parameters
+# 
+# mf0.5<-max.F*0.5
+# mf1.3<-max.F*1.3
+# mf1.9<-max.F*1.9
+# phi.CV.low=phi.CV.high=0.0
+# A=10
+# B.start=85
+# 
+# t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
+# print(t)
+# 
+# 
+# plot(t$phi.CV[-1])
+# 
+# #Test
+# sum(ci*exp(-cs*t$phi.CV),na.rm=T)
+# 
+# #test cost function for monitoring
+# cvec=seq(0.05,0.5,by=0.01)
+# 
+# cm2=ci*exp(-cs*cvec)
+# plot(cvec,cm2,type="l")
 
 
 
@@ -185,38 +187,38 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 ############################################################
 # Test repeat.model2 
 ############################################################
-
-start.B.list<-seq(20,100,by=1)
-
-#Set up iterations for repeat model
-n.iters=100
-phi.seeds<-round(1000000*runif(n.iters),0)
-process.seeds<-round(1000000*runif(n.iters),0)
-
-A=10
-Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
-B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
-MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
-Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
-
-
-mf0.5<-Fmsy*0.5
-mf1.3<-Fmsy*1.3
-mf1.5<-Fmsy*1.5
-mf2.0<-Fmsy*2.0
-phi.CV.low=phi.CV.high=0.0
-
-#not that ptip is very dependent upon the starting density 
-
-value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
-return.value<-median(c(value[[1]]))
-return.BB<-median(c(value[[2]]))
-return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A 
-return.TPMGMT<-sum(value[[4]])/n.iters
-return.dB<-value[[5]]
-return.B <-value[[6]]
-return.cm<-value[[9]]
-value
+# 
+# start.B.list<-seq(20,100,by=1)
+# 
+# #Set up iterations for repeat model
+# n.iters=100
+# phi.seeds<-round(1000000*runif(n.iters),0)
+# process.seeds<-round(1000000*runif(n.iters),0)
+# 
+# A=10
+# Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
+# B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
+# MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
+# Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
+# 
+# 
+# mf0.5<-Fmsy*0.5
+# mf1.3<-Fmsy*1.3
+# mf1.5<-Fmsy*1.5
+# mf2.0<-Fmsy*2.0
+# phi.CV.low=phi.CV.high=0.0
+# 
+# #not that ptip is very dependent upon the starting density 
+# 
+# value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
+# return.value<-median(c(value[[1]]))
+# return.BB<-median(c(value[[2]]))
+# return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A 
+# return.TPMGMT<-sum(value[[4]])/n.iters
+# return.dB<-value[[5]]
+# return.B <-value[[6]]
+# return.cm<-value[[9]]
+# value
 
 
 
