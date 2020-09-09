@@ -1,9 +1,21 @@
-# Figure 2 code
-library(here)
+#########
+#FIGURE 2: How does the value of information change as a function of 
+#########
+
+#load packages, parameters, and MSE model
+source("code/0_libraries.R") #load packages that are relevant
+source("code/2_model_parameters.R") # base parameters
+source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+
+
+
+#ar has 5 dimensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
+#so division or subtraction of the array is just the values of NPV 
+
 # get simulation outputs
-load(here("output","simulation","range_of_bstart 2015-09-18 20000 .Rdata")) #this is the original simulation. dataframe = ar
+load("output/simulation/range_of_bstart 2015-09-18 20000 .Rdata") #this is the original simulation. dataframe = ar
+
 # NOTE: create output file again, myself
-source(here("code","ModelParameters_v1.R")) # reset base parameters after simulation (specifically max.F)
 
 
 Fig2 <- function(outputs = ar){

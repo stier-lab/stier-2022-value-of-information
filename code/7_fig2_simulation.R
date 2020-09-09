@@ -1,0 +1,64 @@
+#########
+#FIGURE 2 Simulation: how does value of information change when you spend more time near tipping point
+#########
+
+source("code/0_libraries.R") #load packages that are relevant
+source("code/2_model_parameters.R") # base parameters
+source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+
+#set parameter range for surface of simulated parameters
+years = 20
+B.vec <- seq(1,100, by = 5)
+avec <- seq(10,30,by = 10) #biomass at which allee effect occurs
+phivec <- seq(0.1,0.5,by=.1) #uncertainty cv
+FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
+
+#create empty array with labels
+ar <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec),length(B.vec)))
+dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec),B.vec)
+
+#set number of iterations 
+n.iters = 200
+rm(.Random.seed)
+phi.seeds<-round(1000000*runif(n.iters),0)
+process.seeds<-round(1000000*runif(n.iters),0)
+
+#write infinite for loop and dream of knowing how to use apply funcitons better
+
+for(b in seq(B.vec)){
+  for(a in seq(avec)){  
+    for(j in seq(phivec)){
+      for (i in seq(FMSYvec)){
+        
+        print(B.vec[b])
+        
+        #dictate the monitoring investment as fixed
+        phi.CV.low=phi.CV.high=phivec[j]
+        
+        #calculate maxF
+        A=avec[a]
+        Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
+        B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
+        MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
+        Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
+        max.F.2=FMSYvec[i]*Fmsy
+        
+        
+        value <-repeat.model2(n.iters,B.start=B.vec[b],B.lim,years,K,A=avec[a],r,phi.CV,delta=.05,process.noise=0.0,p,max.=max.F.2,phi.seeds,process.seeds)
+        
+        
+        ar[i,1,j,a,b] <-median(c(value[[1]]))  #NPV
+        ar[i,2,j,a,b] <-sum(value[[3]])/n.iters #p tip
+        ar[i,3,j,a,b] <-median(value[[6]]) #biomass
+        ar[i,4,j,a,b] <-sum(value[[7]]) #Cumulative Yield
+        ar[i,5,j,a,b] <-sd(value[[6]]) #sd biomass
+        ar[i,6,j,a,b] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
+        ar[i,7,j,a,b] <-Fmsy
+        ar[i,8,j,a,b] <-max.F.2
+        
+      }
+    }
+  }
+}
+
+save(ar,file=here("output/simulations",paste("fig2_range_of_bstart_conservative",Sys.Date(),n.iters,".Rdata")))

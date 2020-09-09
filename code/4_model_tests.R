@@ -7,7 +7,7 @@ library(ggpubr)
 source("code/theme_Publication.R") #graphing hack 1
 source("code/multiplot.R") #graphic hack 2
 source("code/ModelParameters_v1.R") # base parameters
-source("code/MSE_Model_JS.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source("code/MSE_Model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #############################################################
 #BELOW PLOT A 4 panel figure for the conceptiual description of the model 

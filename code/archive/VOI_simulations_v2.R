@@ -2,19 +2,10 @@
 #Value of Information Simulations 
 ##########################################
 
-#load packages
-library(ggplot2)
-library(reshape)
-library(gridExtra)
-library(here)
-library(ggpubr)
-library(ggthemes)
-library(tidyverse)
-library(cowplot)
 
-
-source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","MSE_Model_JS.R"))#load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source("code/0_libraries.R") #load packages that are relevant
+source("code/2_model_parameters.R") # base parameters
+source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 
 gc <- guide_colorbar(
@@ -33,8 +24,7 @@ gc <- guide_colorbar(
 #the following loops through a number of different possible combinations of fmsy cv and a to think about the importance of info
 #across a surface. 
 
-source(here("code","ModelParameters_v1.R")) # base parameters
-source(here("code","theme_publication.R"))
+source("code/2_model_parameters.R") # base parameters
 
 #Set Number of Iterations and Seeds for Phi and Process for each of the simulations below
 
@@ -44,8 +34,8 @@ phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
 
 B.start <- 50 #starting biomass
-avec <- seq(10,30,by = 10) #vector of tippint points
-phivec <- seq(0.0,0.5,by=.1) #vecor of accuracy
+avec <- seq(10,30,by = 10) #vector of tipping points
+phivec <- seq(0.0,0.5,by=.1) #vector of accuracy
 FMSYvec <- seq(.1,2,by=0.1) #manipulating  max.F my a multiplier
 ar1 <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
 dimnames(ar1) = list(FMSYvec,c("NPV","Prob.Cross.TP","biomass","CumYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec))
@@ -89,12 +79,12 @@ for(a in 1:length(avec)){
 
 
  save(ar1,file=here("output/simulation",paste("risk and heatmaps",Sys.Date(),n.iters,".Rdata")))
- load(here("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata")) #this is ignored on github will need to produce
+ load("output/simulation","risk and heatmaps 2019-03-13 3000 .Rdata") #this is ignored on github will need to produce
 
-source(here("code","ModelParameters_v1.R")) # base parameters
+source("code/2_model_parameters.R") # base parameters
+ 
 
-
-df1 = melt(ar1,varnames=names(dimnames(ar1)))
+df1 = melt(ar,varnames=names(dimnames(ar1)))
 colnames(df1) = c("pFmsy","metric","CV","A","value")
 
 df1 = reshape(df1,
@@ -159,6 +149,12 @@ p<-list()
 
 ##These plots below are a mess and should be simplified using select/tidyverse to make sure comparing same A values 
 
+
+#########
+#FIGURE 1a: how does prob of tipping matter across tippoing point
+#########
+
+
 #probability of tipping at A=10
 df1a10 <- subset(df1,A == "A = 10")
 
@@ -173,31 +169,35 @@ g1 = ggplot(df1a10,aes(x = CV, y = pFmsy))+
 #   theme_pubr(legend="right")
 print(g1)
 
-#Probability of crossing a tipping point accross Fmsy and CV monitoring - slice plot
-df2 <- subset(df1,CV %in% c(0.0,.1,.2,.3,.4,.5))
-df2 <- subset(df2,pFmsy %in% c(0.0,.1,.5,1,1.5,2))
+# #Probability of crossing a tipping point accross Fmsy and CV monitoring - slice plot
+# df2 <- subset(df1,CV %in% c(0.0,.1,.2,.3,.4,.5))
+# df2 <- subset(df2,pFmsy %in% c(0.0,.1,.5,1,1.5,2))
+# 
+# ggplot(df2,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
+#   geom_line(aes(colour=pFmsy))+
+#   scale_colour_gradient(low="#fee8c8",high="#e34a33")+
+#   facet_grid(TP~.)+
+#   xlab("CV of Monitoring")+
+#   ylab("Probability of Crossing a Tipping Point")+
+#   facet_grid(A~.)+
+#     theme_pubr(legend="right")
+# 
+# #just subset out a=10
+# df3 <- subset(df2,A == "A = 10")
+# 
+# g2 = ggplot(df3,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
+#   geom_line(aes(colour=pFmsy))+
+#   scale_colour_gradient(low="#fee8c8",high="#e34a33")+
+#   xlab("CV of Monitoring")+
+#   ylab("Probability of Crossing a Tipping Point")+
+#     theme_pubr(legend="right")
+# 
+# print(g2)
 
-ggplot(df2,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
-  geom_line(aes(colour=pFmsy))+
-  scale_colour_gradient(low="#fee8c8",high="#e34a33")+
-  facet_grid(TP~.)+
-  xlab("CV of Monitoring")+
-  ylab("Probability of Crossing a Tipping Point")+
-  facet_grid(A~.)+
-    theme_pubr(legend="right")
 
-#just subset out a=10
-df3 <- subset(df2,A == "A = 10")
-
-g2 = ggplot(df3,aes(x=CV,y=Prob.Cross.TP,group=pFmsy))+
-  geom_line(aes(colour=pFmsy))+
-  scale_colour_gradient(low="#fee8c8",high="#e34a33")+
-  xlab("CV of Monitoring")+
-  ylab("Probability of Crossing a Tipping Point")+
-    theme_pubr(legend="right")
-
-print(g2)
-
+#########
+#FIGURE 3: safe operating space for biological and managmeent tipping points
+#########
 
 #what is the cv necessary to get 5% chance of collapse for differen pFmys
 
@@ -231,8 +231,8 @@ g3 = ggplot(df4,aes(x=pFmsy,y=value,group=PercentRisk))+
   ylab("Max CV to Avoid Tipping point")+
     theme_pubr(legend="right")+
   scale_x_continuous(limits=c(0,2))+
-  scale_y_continuous(limits=c(0,0.6),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5,0.6))+
-  scale_colour_Publication()
+  scale_y_continuous(limits=c(0,0.6),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5,0.6))
+  # scale_colour_Publication()
 # ggtitle("Risk to Avoid Allee TP")
 
 
@@ -296,6 +296,10 @@ ggplot(dfall,aes(x=pFmsy,y=value))+
   scale_y_continuous(limits=c(0,0.525),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5))
 ggtitle("Risk to Avoid MGMT TP")
 
+
+#########
+#FIGURE 1b: How does the value of information change accross a range of stock biomassses
+#########
 
 
 ##now plot NPV acros pFmsy for different CVs
@@ -775,7 +779,7 @@ ggsave("StartingDens_CV_barplot.pdf")
 ##########################################################################################################################
 
 
-source(here("code","MSE_Model_JS.R"))#l
+source(here("code","MSE_Model.R"))#l
 source(here("code","ModelParameters_v1.R"))
 
 n.iters=50
