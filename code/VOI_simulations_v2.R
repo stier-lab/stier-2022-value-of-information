@@ -44,7 +44,7 @@ phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
 
 B.start <- 50 #starting biomass
-avec <- seq(10,30,by = 10) #vector of tippint points
+avec <- seq(10,30,by = 10) #vector of tipping points
 phivec <- seq(0.0,0.5,by=.1) #vecor of accuracy
 FMSYvec <- seq(.1,2,by=0.1) #manipulating  max.F my a multiplier
 ar1 <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
