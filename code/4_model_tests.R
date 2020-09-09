@@ -4,10 +4,10 @@ library(ggplot2)
 library(ggpubr)
 
 #load
-source("code/theme_Publication.R") #graphing hack 1
-source("code/multiplot.R") #graphic hack 2
-source("code/ModelParameters_v1.R") # base parameters
-source("code/MSE_Model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source(here::here("code","archive","theme_publication.R")) #graphing hack 1
+source(here::here("code","archive","multiplot.R")) #graphic hack 2
+source(here::here("code","2_model_parameters.R")) # base parameters
+source(here::here("code","3_mse_model.R")) #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #############################################################
 #BELOW PLOT A 4 panel figure for the conceptiual description of the model 
