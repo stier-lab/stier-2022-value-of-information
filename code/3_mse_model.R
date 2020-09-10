@@ -170,7 +170,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     TP[i] <-model.output$TP
     TPBMSY[i]<-model.output$TPBMSY
     dB[i] <-median(abs(model.output$B/model.output$Bhat))
-    B[i] <-mean(model.output$B)
+    B[i] <-mean(model.output$B) #add output: number of years within 20% of A
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)
     cost.monitor[i] <- model.output$cost.monitor
