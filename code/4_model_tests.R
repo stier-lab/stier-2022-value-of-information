@@ -4,10 +4,10 @@ library(ggplot2)
 library(ggpubr)
 
 #load
-source("code/theme_Publication.R") #graphing hack 1
-source("code/multiplot.R") #graphic hack 2
-source("code/ModelParameters_v1.R") # base parameters
-source("code/MSE_Model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source(here::here("code","archive","theme_publication.R")) #graphing hack 1
+source(here::here("code","archive","multiplot.R")) #graphic hack 2
+source(here::here("code","2_model_parameters.R")) # base parameters
+source(here::here("code","3_mse_model.R")) #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #############################################################
 #BELOW PLOT A 4 panel figure for the conceptiual description of the model 
@@ -19,12 +19,12 @@ source("code/MSE_Model.R") #load MSE model "est.NPV" and wrapper to repeat model
 #####################################
 
 #Allee model derived by TE 
-dbdt.fun<-function(B,K,A,r,F) r*B*(1-B/K)*(B/K-A/K)-F
+dbdt.fun <- function(B,K,A,r,F) r*B*(1-B/K)*(B/K-A/K)-F
 
-Blist<-seq(0,120,by=1)
+Blist <- seq(0,120,by=1)
 
 
-A.list<-seq(0,40,by=10)
+A.list <- seq(0,40,by=10)
 emat <- matrix(0,nrow=length(Blist),ncol=length(A.list))
 
 for (i in 1:length(A.list)){
@@ -45,11 +45,11 @@ df1 <- data.frame(emat)
 df1$time = Blist
 colnames(df1) <- c(A.list,"time")
 
-df2 <-melt(df1,id.vars="time")
+df2 <- melt(df1,id.vars="time")
 colnames(df2) <- c("time","A","Biomass")
 df2$A <-as.numeric(as.character(df2$A))
 
-gga = ggplot(df2,aes(x=time,y=Biomass,group=A))+
+gga <- ggplot(df2,aes(x=time,y=Biomass,group=A))+
   geom_line(aes(colour=A))+
   scale_colour_gradient(low="dodgerblue",high="firebrick")+
   geom_hline(yintercept=0)+
@@ -60,7 +60,7 @@ gga = ggplot(df2,aes(x=time,y=Biomass,group=A))+
   theme(legend.position = "right")
 
 
-print(gga)
+gga
 ggsave("output/figures/dbdt.pdf",width=10,height=5)
 
 #######
@@ -106,11 +106,13 @@ df3 <- data.frame(bvec,yvec)
 df3$prop <-df3$yvec/df3$bvec
 plot(df3$prop,type="l")
 
-ggb = ggplot(df3,aes(x=bvec,y=prop))+
+ggb <- ggplot(df3,aes(x=bvec,y=prop))+
   geom_line(colour="dodgerblue",size=1)+
   xlab("Standing Stock Biomass")+
   ylab("Proportion of Biomass Caught")+
   theme_Publication()
+
+ggb
 
 ggsave("managementmodel.pdf",width=5,height=2)
 
@@ -166,7 +168,7 @@ ggc = ggplot(df_cv,aes(x=Phi,y=dB))+
   theme_Publication()
 
 # ggsave("sampling_error.pdf",width=5,height=2)
-
+ggc
 print(ggc)
 
 

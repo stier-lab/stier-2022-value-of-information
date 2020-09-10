@@ -35,7 +35,11 @@ process.seeds<-round(1000000*runif(n.iters),0)
 
 B.start <- 50 #starting biomass
 avec <- seq(10,30,by = 10) #vector of tipping points
+<<<<<<< HEAD:code/VOI_simulations_v2.R
+phivec <- seq(0.0,0.5,by=.1) #vecor of accuracy
+=======
 phivec <- seq(0.0,0.5,by=.1) #vector of accuracy
+>>>>>>> dfeea026928408acb30d6782364ca1c2c096979f:code/archive/VOI_simulations_v2.R
 FMSYvec <- seq(.1,2,by=0.1) #manipulating  max.F my a multiplier
 ar1 <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
 dimnames(ar1) = list(FMSYvec,c("NPV","Prob.Cross.TP","biomass","CumYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec))
