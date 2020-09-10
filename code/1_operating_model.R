@@ -31,25 +31,26 @@ K <- -(3*Bmsy^2 - 2*A*Bmsy)/(A - 2*Bmsy)
 r <- MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
 Fmsy <- MSY/Bmsy
 
-# This is 
+# MCS: Analytical solution for equilibrium biomass?
 b.star.fun <- function(F,K,A,r){
-  max(0,(A*r + K*r + (-r*(4*F*K^2 - A^2*r - K^2*r + 2*A*K*r))^(1/2))/(2*r))}
+  max(0,(A*r + K*r + (-r*(4*F*K^2 - A^2*r - K^2*r + 2*A*K*r))^(1/2))/(2*r))
+  }
 
 F.vec <- seq(0, 2*Fmsy, length.out = 100)
 
 b.star.vec <- sapply(F.vec, FUN=b.star.fun, K=K, A=A, r=r)
 b.star.vec <- replace(b.star.vec,which(b.star.vec=="NaN"),0)
 
-# MCS: I just picked values for these. I don't know what they are.
-p <- 1
-c <- 10
 
-plot(F.list, p*F.list*b.star.vec, 
+p <- 1 # price
+c <- 10 # cost of fishing
+
+plot(F.list, p*F.vec*b.star.vec, 
      type="l",lwd=2,col="blue",
      xlab="Exploitation Rate",
      ylab="Catch Value or Cost")
 
-lines(F.list,c*F.list,type="l",lwd=2,col="red")
+lines(F.vec,c*F.list,type="l",lwd=2,col="red")
 
 
 
