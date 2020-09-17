@@ -19,12 +19,12 @@ load("output/simulation/range_of_bstart 2015-09-18 20000 .Rdata") #this is the o
 
 
 Fig2 <- function(outputs = ar){
-  npv_ratio <- (outputs[,1,c(1),3,] / outputs[,1,c(5),3,])
+  npv_ratio <- (outputs[,1,c(1),1,] / outputs[,1,c(5),1,])  # ar[,,,3,]
   npv_ratio <- melt(npv_ratio)
   names(npv_ratio) <- c("pFmsy","B.start","roi")
   
   npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
-  npv_ratio2$prox<- -1*(npv_ratio2$B.start)
+  npv_ratio2$prox<- -1*(npv_ratio2$B.start) # starting biomass
   npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
   
   gs_ratio3 <- npv_ratio2 %>%
