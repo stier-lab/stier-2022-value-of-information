@@ -8,17 +8,20 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 #set parameter range for surface of simulated parameters
 years = 20
-B.vec <- seq(1,100, by = 5)
+B.vec <- seq(1,100, by = 10) #MCS: used to be by 5
 avec <- seq(10,30,by = 10) #biomass at which allee effect occurs
-phivec <- seq(0.1,0.5,by=.1) #uncertainty cv
+phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 
 #create empty array with labels
-ar <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec),length(B.vec)))
-dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec),B.vec)
+ar <- array(dim=c(length(FMSYvec),10,length(phivec),length(avec),length(B.vec)))
+dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
+                              "SDBiomass","Ptip.MGMT","Fmsy","max.F.2",
+                              "yrs.near.TP.20","yrs.near.TP.10"),
+                    phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 200
+n.iters = 10
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -44,9 +47,9 @@ for(b in seq(B.vec)){
         max.F.2=FMSYvec[i]*Fmsy
         
         
-        value <-repeat.model2(n.iters,B.start=B.vec[b],B.lim,years,K,A=avec[a],r,phi.CV,delta=.05,process.noise=0.0,p,max.=max.F.2,phi.seeds,process.seeds)
+        value <- repeat.model2(n.iters,B.start=B.vec[b],B.lim,years,K,A=avec[a],r,phi.CV,delta=.05,process.noise=0.0,p,max.=max.F.2,phi.seeds,process.seeds)
         
-        
+        #MCS: why not name these with $'s so you can tell what they're called?
         ar[i,1,j,a,b] <-median(c(value[[1]]))  #NPV
         ar[i,2,j,a,b] <-sum(value[[3]])/n.iters #p tip
         ar[i,3,j,a,b] <-median(value[[6]]) #biomass
@@ -55,10 +58,12 @@ for(b in seq(B.vec)){
         ar[i,6,j,a,b] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
         ar[i,7,j,a,b] <-Fmsy
         ar[i,8,j,a,b] <-max.F.2
+        ar[i,9,j,a,b] <-median(value$nearA.20)
+        ar[i,10,j,a,b]<-median(value$nearA.10)
         
       }
     }
   }
 }
 
-save(ar,file=here("output/simulations",paste("fig2_range_of_bstart_conservative",Sys.Date(),n.iters,".Rdata")))
+save(ar,file=here("output/simulations",paste("fig2_range_of_bstart_conservative_mcs",Sys.Date(),n.iters,".Rdata")))
