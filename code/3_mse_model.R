@@ -1,4 +1,5 @@
 source("code/0_libraries.R") #load packages that are relevant
+source("code/2b_dangerzone.R") #load performance measure fn for proximity to A
 
 #############################################################
 #Define the net present value for a fixed monitoring investment 
@@ -6,37 +7,37 @@ source("code/0_libraries.R") #load packages that are relevant
 
 #below are three models (est.NPV,repeat.model, and repeat.model2)
 
-est.NPV<-function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c){
+est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c){
   
   # Figure out reference points given param inputs for K, A, MSY, and Bmsy
-  Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3
-  MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)
-  Fmsy<-MSY/Bmsy
-  B.lim<-0.25*Bmsy
+  Bmsy <- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3
+  MSY <- r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)
+  Fmsy <- MSY/Bmsy
+  B.lim <- 0.25*Bmsy
   
-  B.vec<-rep(NA,years) #Biomass through time # why +1?
-  B.vec[1]<-B.start
-  Bhat.vec<-rep(NA,years) #Estimated biomass through time
-  Bhat.vec[1]<-B.start
-  Y.vec<-rep(NA,years) #yield through time
-  F.vec<-rep(NA,years)
+  B.vec <- rep(NA,years) #Biomass through time # why +1?
+  B.vec[1] <- B.start
+  Bhat.vec <- rep(NA,years) #Estimated biomass through time
+  Bhat.vec[1] <- B.start
+  Y.vec <- rep(NA,years) #yield through time
+  F.vec <- rep(NA,years)
   #phi<-Bmsy*phi.CV #CV determines precision of Bhat estimate
   
   #B.vec[1]<-B.start #starting biomass
-  phi.CV<-rep(NA,years)
+  phi.CV <- rep(NA,years)
   
   # Get observation errors for low and high CV
   set.seed(phi.CV.seed) #observation errors depend on seed
-  B.errors.low<-exp(rnorm(years,mean=(0-phi.CV.low^2/2),sd=phi.CV.low)) #lognormal observation error
-  B.errors.high<-exp(rnorm(years,mean=(0-phi.CV.high^2/2),sd=phi.CV.high)) #lognormal observation error
+  B.errors.low <- exp(rnorm(years,mean=(0-phi.CV.low^2/2),sd=phi.CV.low)) #lognormal observation error
+  B.errors.high <- exp(rnorm(years,mean=(0-phi.CV.high^2/2),sd=phi.CV.high)) #lognormal observation error
   
   # get process errors
   set.seed(process.noise.seed) 
-  process.errors<-rnorm(years,mean=0,sd=process.noise)
+  process.errors <- rnorm(years,mean=0,sd=process.noise)
   
   ## Solve for harvest control rule parameters
-  Fo<- -(max.F*B.lim)/(Bmsy - B.lim)
-  b<-max.F/(Bmsy - B.lim)
+  Fo <- -(max.F*B.lim)/(Bmsy - B.lim)
+  b <- max.F/(Bmsy - B.lim)
   
   for (i in 1:years){
     
@@ -153,6 +154,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   pFmax<-rep(NA,n.iters)
   
   phi.CV.seed.save<-rep(NA,n.iters)
+  nearA.10 <- nearA.20 <- rep(NA,n.iters)
   
   
   for (i in 1:n.iters){
@@ -171,6 +173,10 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     TPBMSY[i]<-model.output$TPBMSY
     dB[i] <-median(abs(model.output$B/model.output$Bhat))
     B[i] <-mean(model.output$B) #add output: number of years within 20% of A
+    
+    nearA.20[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.2)
+    nearA.10[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.1)
+    
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)
     cost.monitor[i] <- model.output$cost.monitor
@@ -178,7 +184,10 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     pFmax[i]<-max(model.output$pF)
   }
   
-  return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,NPV_minusCM=NPV_minusCM,pFmax=pFmax))
+  return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,
+              B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,
+              NPV_minusCM=NPV_minusCM,pFmax=pFmax,
+              nearA.20=nearA.20,nearA.10=nearA.10))
 }
 
 

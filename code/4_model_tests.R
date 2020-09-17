@@ -10,7 +10,7 @@ source(here::here("code","2_model_parameters.R")) # base parameters
 source(here::here("code","3_mse_model.R")) #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #############################################################
-#BELOW PLOT A 4 panel figure for the conceptiual description of the model 
+#BELOW PLOT A 4 panel figure for the conceptual description of the model 
 #############################################################
 
 
