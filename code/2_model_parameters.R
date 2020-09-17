@@ -19,16 +19,16 @@ A <- 10  #allee effect threshold
 Bmsy <- 70 #Biomass at MSY
 MSY <- 25
 
-K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A) #Carrying Capacity of Focal population (derived by TE in matlab)
-r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)) #population growth rate 
+K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A) # Carrying Capacity of Focal population (derived by TE in matlab)
+r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)) # population growth rate 
 
-Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
-max.F<-Fmsy #maximum fishing defined as Fmsy *****double check an older version of this 
-B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
-B.crit<-50
+Fmsy <- MSY/Bmsy # Fishing mortality that produces MSY
+max.F <- Fmsy # maximum fishing defined as Fmsy *****double check an older version of this 
+B.lim <- max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
+B.crit <- 50 
 
-phi.CV.low <-0.1 #low cv associated with high montioring investment
-phi.CV.high <-0.5 #high cv associated with low monitoring investment
+phi.CV.low <- 0.1 #low cv associated with high montioring investment
+phi.CV.high <- 0.5 #high cv associated with low monitoring investment
 
 #Set up iterations for repeat model
 rm(.Random.seed)
