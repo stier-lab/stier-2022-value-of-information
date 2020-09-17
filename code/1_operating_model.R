@@ -2,13 +2,14 @@
 
 dbdt.fun <- function(B,K,A,r,F){
   r*B*(1-B/K)*(B/K-A/K)-F
-} 
+}
 
 B.vec <- seq(0, 100, by=1)
 
 K = 100
 r = 1.25
 A.vec <- c(-10,0,10,20,30,500)
+
 par(mfrow=c(3,2))
 
 for (i in 1:length(A.vec)){
