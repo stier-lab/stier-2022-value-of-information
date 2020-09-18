@@ -1,4 +1,8 @@
-source("code/MSE_Model_JS.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+#source("code/MSE_Model_JS.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+source("code/0_libraries.R") #load packages that are relevant
+source("code/2_model_parameters.R") # base parameters
+source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
+
 
 # quick routine to see one model iteration result
 rm(.Random.seed)
@@ -54,4 +58,15 @@ print(paste("return on investment =",round(model.output.lowCV$NPV-model.output.h
 
 btest <- model.output.lowCV$B
 # length(which(be[years]<A))/ length(B.vec)
+
+
+# -------------------------------------------------------------------------
+par(mfrow=c(1,1))
+plot(1:21, model.output.highCV$B,type='l')
+abline(h = A,col='red')
+threshold = K/2
+abline(h = threshold,col='red',lty=2)
+
+dangerzone(B.vec = model.output.highCV$B,A = A,thresh = threshold)
+A
 

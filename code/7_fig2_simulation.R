@@ -66,4 +66,4 @@ for(b in seq(B.vec)){
   }
 }
 
-save(ar,file=here("output/simulations",paste("fig2_range_of_bstart_conservative_mcs",Sys.Date(),n.iters,".Rdata")))
+save(ar,file=here::here("output","simulation",paste("fig2_mcs_",Sys.Date(),"_",n.iters,".Rdata",sep="")))
