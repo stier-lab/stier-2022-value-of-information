@@ -13,7 +13,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #so division or subtraction of the array is just the values of NPV 
 
 # get simulation outputs
-load("output/simulation/range_of_bstart 2015-09-18 20000 .Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-09-17_10.RData") #this is the original simulation. dataframe = ar
 
 Fig2 <- function(outputs = ar){
   npv_ratio <- (outputs[, 1, 1 ,1,] / outputs[, 1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
