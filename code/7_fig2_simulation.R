@@ -21,7 +21,7 @@ dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 10
+n.iters = 100
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
