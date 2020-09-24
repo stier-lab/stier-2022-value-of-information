@@ -17,7 +17,7 @@ FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 ar <- array(dim=c(length(FMSYvec),10,length(phivec),length(avec),length(B.vec)))
 dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                               "SDBiomass","Ptip.MGMT","Fmsy","max.F.2",
-                              "yrs.near.TP.20","yrs.near.TP.10"),
+                              "yrs.near.thresh1","yrs.near.thresh2"),
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
@@ -58,8 +58,8 @@ for(b in seq(B.vec)){
         ar[i,6,j,a,b] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
         ar[i,7,j,a,b] <-Fmsy
         ar[i,8,j,a,b] <-max.F.2
-        ar[i,9,j,a,b] <-median(value$nearA.20)
-        ar[i,10,j,a,b]<-median(value$nearA.10)
+        ar[i,9,j,a,b] <-median(value$thresh1)
+        ar[i,10,j,a,b]<-median(value$thresh2)
         
       }
     }
