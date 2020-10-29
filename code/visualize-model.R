@@ -8,11 +8,11 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 rm(.Random.seed)
 phi.CV.seed<-round(100000*runif(1),0)
 process.noise.seed<-round(100000*runif(1),0)
-A = 10  #allee effect threshold 
-delta<-.05 # discount rate
+A = 30  #allee effect threshold 
+delta = .05 # discount rate
 process.noise = 0.5 #temporally uncorrelated variance (sd) in little r 
 p = 10 #price per unit biomass
-c=200 # cost to achieve F
+c = 200 # cost to achieve F
 
 
 Bmsy<- 70
@@ -23,7 +23,7 @@ Fmsy<-MSY/Bmsy
 max.F<-Fmsy
 B.lim<-20 # lower biomass limit for harvest control rule
 
-B.start<-50
+B.start<-61
 model.output.lowCV<-est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
 model.output.highCV<-est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
 
@@ -61,12 +61,34 @@ btest <- model.output.lowCV$B
 
 
 # -------------------------------------------------------------------------
-par(mfrow=c(1,1))
-plot(1:21, model.output.highCV$B,type='l')
+par(mfrow=c(1,2))
+plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+title("Bstart = 61")
+for(i in 1:20){
+  B.start = 61
+  phi.CV.seed<-round(100000*runif(1),0)
+  process.noise.seed<-round(100000*runif(1),0)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  lines(1:21,model.output.highCV$B,
+        col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
+}
 abline(h = A,col='red')
 threshold = K/2
 abline(h = threshold,col='red',lty=2)
 
-dangerzone(B.vec = model.output.highCV$B,A = A,thresh = threshold)
-A
+B.start = 20 #start below A
+plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+title("Bstart = 20")
+for(i in 1:20){
+  phi.CV.seed<-round(100000*runif(1),0)
+  process.noise.seed<-round(100000*runif(1),0)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  lines(1:21,model.output.highCV$B,
+        col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
+}
+abline(h = A,col='red')
+threshold = K/2
+abline(h = threshold,col='red',lty=2)
+
+
 
