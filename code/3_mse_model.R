@@ -154,7 +154,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   pFmax<-rep(NA,n.iters)
   
   phi.CV.seed.save<-rep(NA,n.iters)
-  nearA.10 <- nearA.20 <- rep(NA,n.iters)
+  thresh2 <- thresh1 <- rep(NA,n.iters)
   
   
   for (i in 1:n.iters){
@@ -174,8 +174,8 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     dB[i] <-median(abs(model.output$B/model.output$Bhat))
     B[i] <-mean(model.output$B) #add output: number of years within 20% of A
     
-    nearA.20[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2)
-    nearA.10[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4)
+    thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2)
+    thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4)
     
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)
@@ -187,7 +187,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,
               B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,
               NPV_minusCM=NPV_minusCM,pFmax=pFmax,
-              nearA.20=nearA.20,nearA.10=nearA.10))
+              thresh1=thresh1,thresh2=thresh2))
 }
 
 
