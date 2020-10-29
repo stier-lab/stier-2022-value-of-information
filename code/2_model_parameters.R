@@ -15,7 +15,7 @@ ci <- 100 #intecept of decay in cost of monitoring function
 cs <- 5 #slope in cost of monitoring function
 
 # parameterize the model based on A,BMSY and MSY
-A <- 10  #allee effect threshold 
+A <- 30  #allee effect threshold 
 Bmsy <- 70 #Biomass at MSY
 MSY <- 25
 
