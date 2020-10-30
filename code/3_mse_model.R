@@ -174,8 +174,8 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     dB[i] <-median(abs(model.output$B/model.output$Bhat))
     B[i] <-mean(model.output$B) #add output: number of years within 20% of A
     
-    thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2)
-    thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4)
+    thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 2*A) #K/2
+    thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4) 
     
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)

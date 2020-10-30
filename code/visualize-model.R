@@ -8,7 +8,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 rm(.Random.seed)
 phi.CV.seed<-round(100000*runif(1),0)
 process.noise.seed<-round(100000*runif(1),0)
-A = 30  #allee effect threshold 
+A = 10  #allee effect threshold 
 delta = .05 # discount rate
 process.noise = 0.5 #temporally uncorrelated variance (sd) in little r 
 p = 10 #price per unit biomass
@@ -20,7 +20,7 @@ MSY<-25
 K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A)
 r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
 Fmsy<-MSY/Bmsy
-max.F<-Fmsy
+max.F<-1.5*Fmsy
 B.lim<-20 # lower biomass limit for harvest control rule
 
 B.start<-61
@@ -68,7 +68,7 @@ for(i in 1:20){
   B.start = 61
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
@@ -82,7 +82,7 @@ title("Bstart = 20")
 for(i in 1:20){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
