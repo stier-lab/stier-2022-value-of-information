@@ -68,7 +68,7 @@ for(i in 1:20){
   B.start = 61
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
@@ -82,7 +82,7 @@ title("Bstart = 20")
 for(i in 1:20){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
