@@ -10,7 +10,7 @@ phi.CV.seed<-round(100000*runif(1),0)
 process.noise.seed<-round(100000*runif(1),0)
 A = 10  #allee effect threshold 
 delta = .05 # discount rate
-process.noise = 0.5 #temporally uncorrelated variance (sd) in little r 
+process.noise = 0 #temporally uncorrelated variance (sd) in little r 
 p = 10 #price per unit biomass
 c = 200 # cost to achieve F
 
@@ -20,7 +20,7 @@ MSY<-25
 K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A)
 r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
 Fmsy<-MSY/Bmsy
-max.F<-1.5*Fmsy
+max.F<-0.5*Fmsy
 B.lim<-20 # lower biomass limit for harvest control rule
 
 B.start<-61
@@ -63,9 +63,9 @@ btest <- model.output.lowCV$B
 # -------------------------------------------------------------------------
 par(mfrow=c(1,2))
 plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
-title("Bstart = 61")
+title("Bstart = 100")
 for(i in 1:20){
-  B.start = 61
+  B.start = 100
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
   model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
@@ -76,13 +76,13 @@ abline(h = A,col='red')
 threshold = K/2
 abline(h = threshold,col='red',lty=2)
 
-B.start = 20 #start below A
+B.start = 100 #start below A
 plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
-title("Bstart = 20")
+title("Bstart = 100, CV=0.5")
 for(i in 1:20){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }

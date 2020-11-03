@@ -13,8 +13,12 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #so division or subtraction of the array is just the values of NPV 
 
 # get simulation outputs
-load("output/simulation/fig2_mcs_2020-10-30_100.RData") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-11-03_100.Rdata") #this is the original simulation. dataframe = ar
 
+#order of ar dimensions 
+#1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
+
+###This figure shows how the ROI changes as a function of b.start 
 
 Fig2 <- function(outputs = ar){
   npv_ratio <- (outputs[, 1, 1 ,1,] / outputs[, 1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
@@ -51,11 +55,14 @@ Fig2(outputs = ar)
 
 #this looks as a funciton of time below a threshold /i.e.dangerzone and ROI
 
+#order of ar dimensions 
+#1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
+
 
 Fig2b <- function(outputs = ar){
-  npv_ratio <- (outputs[,1, 1 ,1,] / outputs[,1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  t_near_tp <- outputs[,10, 1 ,1,]
-  ptip <-outputs[,2, 1 ,3,]
+  npv_ratio <- (outputs[,1, 1 ,3,] / outputs[,1,5,3,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+  t_near_tp <- outputs[,9, 5 ,3,] #time spent near tipping point at cv=0.5
+  ptip <-outputs[,2, 5 ,3,]
   
   t_near_tp <- melt(t_near_tp)
   names(t_near_tp) <- c("pFmsy","B.start","time.in.dangerzone")
@@ -66,7 +73,6 @@ Fig2b <- function(outputs = ar){
   t_ptip <-melt(ptip)
   names(t_ptip) <- c("pFmsy","B.start","ptip")
   
-  
   #npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
   npv_ratio2 <- npv_ratio %>% 
     left_join(t_near_tp,by = c('pFmsy','B.start'))
@@ -74,8 +80,9 @@ Fig2b <- function(outputs = ar){
   npv_ratio3<- npv_ratio2 %>%
     left_join(t_ptip,by=c('pFmsy','B.start'))
   
-  # npv_ratio3$pFmsy<-as.factor(npv_ratio3$pFmsy)
   
+  
+  # npv_ratio3$pFmsy<-as.factor(npv_ratio3$pFmsy)
   #npv_ratio2$prox <- -1*(npv_ratio2$B.start) # starting biomass
   #npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
   
@@ -83,12 +90,12 @@ Fig2b <- function(outputs = ar){
     filter(!is.na(roi)) %>%
     filter(B.start>10) %>%
     # filter(pFmsy %in% c(0.1,0.9,1.9))%>%
-    # filter(ptip<0.75)%>%
+    # filter(ptip<0.25)%>%
     ggplot(aes(x=time.in.dangerzone,y=roi,group=pFmsy)) +
     geom_point(aes(colour=pFmsy)) +
     facet_wrap(~B.start, scales = "free_y") +
     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
-    xlab("Time below (A + K/4) for CV=0.1") +
+    xlab("Time below (A + K/2) for CV=0.5") +
     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
     theme_pubr(legend="right")+
     geom_hline(yintercept=1)
@@ -99,12 +106,14 @@ Fig2b(outputs = ar)
 
 
 
+###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
+#1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
 
 
 Fig2c <- function(outputs = ar){
-  npv_ratio <- (outputs[,1, 1 ,1,] / outputs[,1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  t_near_tp <- outputs[,9, 1 ,1,]
-  ptip <-outputs[,2, 1 ,3,]
+  npv_ratio <- (outputs[,1, 1 ,4,] / outputs[,1,5,4,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+  t_near_tp <- outputs[,9, 5 ,4,]
+  ptip <-outputs[,2, 5 ,4,]
   
   t_near_tp <- melt(t_near_tp)
   names(t_near_tp) <- c("pFmsy","B.start","time.in.dangerzone")
@@ -130,19 +139,94 @@ Fig2c <- function(outputs = ar){
   
   timeplot2 <- npv_ratio3 %>%
     filter(!is.na(roi)) %>%
-    filter(B.start>11) %>%
+    filter(B.start>50) %>%
     # filter(pFmsy %in% c(0.5))%>%
     filter(ptip <0.25)%>%
     ggplot(aes(x=time.in.dangerzone,y=roi,group=pFmsy)) +
-    geom_point(aes(colour=ptip)) +
-    # facet_wrap(~B.start, scales = "free_y") +
-    scale_colour_gradient(low="dodgerblue",high="firebrick",name="ptip") +
-    xlab("Time below (A + K/4) for CV=0.1") +
+    geom_point(aes(colour=pFmsy)) +
+    facet_wrap(~pFmsy, scales = "free_y") +
+    scale_colour_gradient(low="dodgerblue",high="firebrick",name="pFMSY") +
+    xlab("Time below (A + K/2) for CV=0.5") +
     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
     theme_pubr(legend="right")
   timeplot2
 }
 
 Fig2c(outputs = ar)
+
+
+
+
+
+#####################################################################
+#####################################################################
+load("output/simulation/fig2_mcs_2020-11-03_100.Rdata") #this is the original simulation. dataframe = ar
+
+#melt down ar and look for what values might make sense 
+
+sim_out<-melt(ar)
+colnames(sim_out)<-c("maxF","response","cv","A","b.start","value")
+
+atab10<-filter(sim_out,response == "NPV" & A=="A = 10")
+atab20<-filter(sim_out,response == "Prob.Cross.TP" & A=="A = 20")
+atab30<-filter(sim_out,response == "NPV" & A=="A = 30")
+
+ggplot(atab10,aes(x=b.start,y=value,colour=maxF,group=maxF))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~cv)+
+  geom_vline(xintercept=10)+
+  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
+  theme_classic()
+
+ggplot(atab30,aes(x=b.start,y=value,colour=maxF,group=maxF))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~cv)+
+  geom_vline(xintercept=30)+
+  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
+  theme_classic()+
+  ylab("NPV")
+
+
+compare_NPV <- full_join(atab10,atab30) %>%
+  filter(cv %in% c(0.1,0.5))%>%
+  filter(maxF %in% c(0.1,0.9,1.9))
+
+compare_NPV$cv <- as.factor(compare_NPV$cv)
+
+ggplot(compare_NPV,aes(x=b.start,y=value,colour=cv,shape=A,group=cv))+
+  geom_point()+
+  geom_line()+
+  facet_grid(maxF~A)+
+  theme_pubr()+
+  ylab("NPV")
+
+
+
+
+
+
+# try plotting out data ROI-dangerzone
+
+atab10<-
+  sim_out%>%
+  filter(response %in% c("yrs.near.thresh1","NPV","Prob.Cross.TP")  & A %in% c("A = 10","A = 30"))%>%
+  pivot_wider(names_from = response,values_from=value)%>%
+  filter(cv %in% c(0.1,0.5))%>%
+  filter(Prob.Cross.TP<0.75)%>%
+  # pivot_wider(names_from = cv,values_from = NPV,names_prefix="NPVCV")%>% 
+  # pivot_longer(cols = c('NPVCV0.1','NPVCV0.5')) %>% drop_na() %>% pivot_wider()%>%
+  # mutate(ROI=NPVCV0.1/NPVCV0.5)%>%
+  filter(b.start>10)
+
+ggplot(atab10,aes(x=yrs.near.thresh1,y=ROI,colour=maxF))+
+  geom_point()
+
+atab10$cv<-as.factor(atab10$cv)
+
+ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
+  geom_line()
+
 
 

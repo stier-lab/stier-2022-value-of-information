@@ -8,8 +8,8 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 #set parameter range for surface of simulated parameters
 years = 20
-B.vec <- seq(1,100, by = 10) #MCS: used to be by 5
-avec <- seq(10,30,by = 10) #biomass at which allee effect occurs
+B.vec <-  seq(1,100, by = 10) #MCS: used to be by 5
+avec <- seq(1,20,by = 5) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 
@@ -67,100 +67,5 @@ for(b in seq(B.vec)){
 }
 
 save(ar,file=here::here("output","simulation",paste("fig2_mcs_",Sys.Date(),"_",n.iters,".Rdata",sep="")))
-
-#melt down ar and look for what values might make sense 
- 
-sim_out<-melt(ar)
-colnames(sim_out)<-c("maxF","response","cv","A","b.start","value")
-
-atab10<-filter(sim_out,response == "NPV" & A=="A = 10")
-atab20<-filter(sim_out,response == "Prob.Cross.TP" & A=="A = 20")
-atab30<-filter(sim_out,response == "NPV" & A=="A = 30")
-
-ggplot(atab10,aes(x=b.start,y=value,colour=maxF,group=maxF))+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~cv)+
-  geom_vline(xintercept=10)+
-  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
-  theme_classic()
-
-ggplot(atab30,aes(x=b.start,y=value,colour=maxF,group=maxF))+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~cv)+
-  geom_vline(xintercept=30)+
-  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
-  theme_classic()+
-  ylab("NPV")
-
-
-compare_NPV <- full_join(atab10,atab30) %>%
-  filter(cv %in% c(0.1,0.5))%>%
-  filter(maxF %in% c(0.1,0.9,1.9))
-
-compare_NPV$cv <- as.factor(compare_NPV$cv)
-
-
-ggplot(compare_NPV,aes(x=b.start,y=value,colour=cv,shape=A,group=cv))+
-  geom_point()+
-  geom_line()+
-  facet_grid(maxF~A)+
-  theme_pubr()+
-  ylab("NPV")
-
-
-
-
-
-
-# try plotting out data ROI-dangerzone
-
-atab10<-
-  sim_out%>%
-  filter(response %in% c("yrs.near.thresh1","NPV","Prob.Cross.TP")  & A %in% c("A = 10","A = 30"))%>%
-  pivot_wider(names_from = response,values_from=value)%>%
-  filter(cv %in% c(0.1,0.5))%>%
-  filter(Prob.Cross.TP<0.75)%>%
-  # pivot_wider(names_from = cv,values_from = NPV,names_prefix="NPVCV")%>% 
-  # pivot_longer(cols = c('NPVCV0.1','NPVCV0.5')) %>% drop_na() %>% pivot_wider()%>%
-  # mutate(ROI=NPVCV0.1/NPVCV0.5)%>%
-  filter(b.start>10)
-
-ggplot(atab10,aes(x=yrs.near.thresh1,y=ROI,colour=maxF))+
-  geom_point()
-
-  atab10$cv<-as.factor(atab10$cv)
-  
-  ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
-    geom_line()
-  
-  
-  select(-Prob.Cross.TP)
-  
-  
-# repro example
-
-x <- data.frame(group = c("a","b","c","a","b","c"),
-           treatment = c("control","control","nutrients","control","control","nutrients"),
-           response1 = c(1,2,3,NA,NA,NA),
-           response2 = c(NA,NA,NA,1,2,3)
-)
-
-#solution
-data.frame(group = c("a","b","c"),
-           treatment = c("control","control","nutrients"),
-           response1 = c(1,2,3),
-           response2 = c(1,2,3)
-           
-)
-
-
-x %>% pivot_longer(cols = c('response1','response2')) %>% drop_na() %>% pivot_wider()
-
-#example1
-x %>% 
-  mutate(response_both = coalesce(response1,response2)) %>% 
-  distinct(group, treatment, response_both)
 
 
