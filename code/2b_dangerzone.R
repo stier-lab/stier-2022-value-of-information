@@ -15,7 +15,7 @@ dangerzone <- function(B.vec, A, thresh){
   if(A < 0){stop("A cannot be less than zero")}
   nyears <- length(B.vec)
   in.zone <- length(which(B.vec <= A+thresh & B.vec>1))
-  nyears.not.crashed <- length(which(B.vec>A))
+  nyears.not.crashed <- length(which(B.vec>1)) #AS changed this to >1 from >A bc getting prop.years>1
   prop.years <- in.zone / nyears.not.crashed
   return(prop.years)
 }

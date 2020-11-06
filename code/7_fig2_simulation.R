@@ -8,8 +8,8 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 #set parameter range for surface of simulated parameters
 years = 20
-B.vec <-  seq(1,100, by = 10) #MCS: used to be by 5
-avec <- seq(1,20,by = 5) #biomass at which allee effect occurs
+B.vec <-seq(50,100, by = 10) #MCS: used to be by 5
+avec <- c(10,20,30) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 

@@ -91,4 +91,29 @@ threshold = K/2
 abline(h = threshold,col='red',lty=2)
 
 
-
+# -------------------------------------------------------------------------
+#as slop
+  
+  for(i in 1:20)
+  max.F<-1.3*Fmsy
+  A=10
+  plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+  
+  emat<-matrix(0,ncol=2,nrow=20)
+  
+  for(i in 1:20){
+    B.start = 100
+    phi.CV.seed<-round(100000*runif(1),0)
+    process.noise.seed<-round(100000*runif(1),0)
+    model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+    lines(1:21,model.output.highCV$B,
+          col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
+    dangerzone(model.output.highCV$B,A=10,thresh=K/2)
+    model.output.highCV$TP
+    
+    emat[i,1]<-dangerzone(model.output.highCV$B,A=10,thresh=K/2)
+    emat[i,2]<-model.output.highCV$TP
+    
+  }
+  
+  print(emat)

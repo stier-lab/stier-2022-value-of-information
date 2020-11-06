@@ -106,14 +106,23 @@ Fig2b(outputs = ar)
 
 
 
+#####################################################################
+#####################################################################
+#Plots focused on time in danger zone and ROI 
+#####################################################################
+#####################################################################
+
+load("output/simulation/fig2_mcs_2020-11-05_100.Rdata") #this is the original simulation. dataframe = ar
+
+
 ###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
 
 
 Fig2c <- function(outputs = ar){
-  npv_ratio <- (outputs[,1, 1 ,4,] / outputs[,1,5,4,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  t_near_tp <- outputs[,9, 5 ,4,]
-  ptip <-outputs[,2, 5 ,4,]
+  npv_ratio <- (outputs[,1, 1 ,3,] / outputs[,1,5,3,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+  t_near_tp <- outputs[,9, 5 ,3,]
+  ptip <-outputs[,2, 5 ,3,]
   
   t_near_tp <- melt(t_near_tp)
   names(t_near_tp) <- c("pFmsy","B.start","time.in.dangerzone")
@@ -155,11 +164,40 @@ Fig2c <- function(outputs = ar){
 Fig2c(outputs = ar)
 
 
+#heat map as fucntion of years near threshold
 
+df1 = melt(ar,varnames=names(dimnames(ar)))
+colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
+df1w <-pivot_wider(df1,names_from = metric)%>%
+  filter(B.start ==100)
+
+
+ggplot(df1w,aes(x=CV,y=pFmsy))+
+geom_tile(aes(fill=yrs.near.thresh1,colour=yrs.near.thresh1))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("CV of Monitoring")+
+  ylab("pFmsy")+
+  facet_wrap(~A)+
+  theme_pubr(legend="right")
+
+ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=NPV,colour=NPV))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("CV of Monitoring")+
+  ylab("pFmsy")+
+  facet_wrap(~A)+
+  theme_pubr(legend="right")
 
 
 #####################################################################
 #####################################################################
+#Plos focused on NPV as a function of starting biomass
+#####################################################################
+#####################################################################
+
+
 load("output/simulation/fig2_mcs_2020-11-03_100.Rdata") #this is the original simulation. dataframe = ar
 
 #melt down ar and look for what values might make sense 
@@ -201,10 +239,6 @@ ggplot(compare_NPV,aes(x=b.start,y=value,colour=cv,shape=A,group=cv))+
   facet_grid(maxF~A)+
   theme_pubr()+
   ylab("NPV")
-
-
-
-
 
 
 # try plotting out data ROI-dangerzone
