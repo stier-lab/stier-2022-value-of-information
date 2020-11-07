@@ -13,7 +13,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #so division or subtraction of the array is just the values of NPV 
 
 # get simulation outputs
-load("output/simulation/fig2_mcs_2020-11-03_100.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-11-06_100.Rdata") #this is the original simulation. dataframe = ar
 
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
@@ -112,7 +112,7 @@ Fig2b(outputs = ar)
 #####################################################################
 #####################################################################
 
-load("output/simulation/fig2_mcs_2020-11-05_100.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-11-06_100.Rdata") #this is the original simulation. dataframe = ar
 
 
 ###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
@@ -172,16 +172,16 @@ df1w <-pivot_wider(df1,names_from = metric)%>%
   filter(B.start ==100)
 
 
-ggplot(df1w,aes(x=CV,y=pFmsy))+
+gg_danger<-ggplot(df1w,aes(x=CV,y=pFmsy))+
 geom_tile(aes(fill=yrs.near.thresh1,colour=yrs.near.thresh1))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_fill_gradient(low="dodgerblue",high="firebrick",)+
   scale_colour_gradient(low="dodgerblue",high="firebrick")+
   xlab("CV of Monitoring")+
   ylab("pFmsy")+
   facet_wrap(~A)+
   theme_pubr(legend="right")
 
-ggplot(df1w,aes(x=CV,y=pFmsy))+
+gg_NPV<-ggplot(df1w,aes(x=CV,y=pFmsy))+
   geom_tile(aes(fill=NPV,colour=NPV))+
   scale_fill_gradient(low="dodgerblue",high="firebrick")+
   scale_colour_gradient(low="dodgerblue",high="firebrick")+
@@ -189,6 +189,8 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
   ylab("pFmsy")+
   facet_wrap(~A)+
   theme_pubr(legend="right")
+
+plot_grid(gg_danger,gg_NPV,ncol=1)
 
 
 #####################################################################

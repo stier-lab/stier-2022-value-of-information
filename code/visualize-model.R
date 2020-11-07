@@ -95,11 +95,14 @@ abline(h = threshold,col='red',lty=2)
 #as slop
   
   for(i in 1:20)
-  max.F<-1.3*Fmsy
+  max.F<-1*Fmsy
   A=10
   plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+  abline(h = A,col='red')
+  threshold = K/2
+  abline(h = threshold,col='red',lty=2)
   
-  emat<-matrix(0,ncol=2,nrow=20)
+  emat<-matrix(0,ncol=3,nrow=20)
   
   for(i in 1:20){
     B.start = 100
@@ -110,10 +113,12 @@ abline(h = threshold,col='red',lty=2)
           col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
     dangerzone(model.output.highCV$B,A=10,thresh=K/2)
     model.output.highCV$TP
-    
     emat[i,1]<-dangerzone(model.output.highCV$B,A=10,thresh=K/2)
     emat[i,2]<-model.output.highCV$TP
+    emat[i,3]<-length(which(model.output.highCV$B <K/2 & model.output.highCV$TP==0)) #this only gives us when collapse but not necessarily recovery
     
   }
   
-  print(emat)
+  print(max(emat[,1]))
+
+        
