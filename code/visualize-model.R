@@ -115,10 +115,13 @@ abline(h = threshold,col='red',lty=2)
     model.output.highCV$TP
     emat[i,1]<-dangerzone(model.output.highCV$B,A=10,thresh=K/2)
     emat[i,2]<-model.output.highCV$TP
-    emat[i,3]<-length(which(model.output.highCV$B <K/2 & model.output.highCV$TP==0)) #this only gives us when collapse but not necessarily recovery
+    emat[i,3]<-length(which(model.output.highCV$B <K/2 & model.output.highCV$B >A & model.output.highCV$TP==0)) #this only gives us when collapse but not necessarily recovery
     
   }
-  
-  print(max(emat[,1]))
 
+  #maximim fraction dz   
+print(max(emat[,1]))
+  
+  df <- as.data.frame(emat)
+colnames(df) <-c("fraction-danger","tipped","num_rescues")
         

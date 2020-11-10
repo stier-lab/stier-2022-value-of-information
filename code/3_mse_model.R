@@ -155,7 +155,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   
   phi.CV.seed.save<-rep(NA,n.iters)
   thresh2 <- thresh1 <- rep(NA,n.iters)
-  rescue<-rep(NA,n.iter)
+  rescue<-rep(NA,n.iters)
   
   
   for (i in 1:n.iters){
@@ -177,7 +177,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     
     thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2) #2A?
     thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4) 
-    rescue[i]  <- length(which(model.output.highCV$B <K/2 & model.output.highCV$B>A))
+    rescue[i]  <- length(which(model.output$B <K/2 & model.output$B>A & model.output.highCV$B>A))
 
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)
@@ -189,7 +189,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,
               B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,
               NPV_minusCM=NPV_minusCM,pFmax=pFmax,
-              thresh1=thresh1,thresh2=thresh2,rescue))
+              thresh1=thresh1,thresh2=thresh2,rescue=rescue))
 }
 
 
