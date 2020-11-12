@@ -13,7 +13,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #so division or subtraction of the array is just the values of NPV 
 
 # get simulation outputs
-load("output/simulation/fig2_mcs_2020-11-09_100.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-11-11_100.Rdata") #this is the original simulation. dataframe = ar
 
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
@@ -41,7 +41,7 @@ Fig2 <- function(outputs = ar){
                 geom_line(aes(colour=pFmsy)) +
                 scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
                 # scale_x_continuous(limits=c(-100,-5),breaks=c(-100,-75,-50,-25)) +
-                xlab("Proximity to Tipping Point") +
+                xlab("starting density") +
                 ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
                 theme_pubr(legend="right")
             
@@ -112,7 +112,7 @@ Fig2b(outputs = ar)
 #####################################################################
 #####################################################################
 
-load("output/simulation/fig2_mcs_2020-11-09_100.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2020-11-11_100.Rdata") #this is the original simulation. dataframe = ar
 
 
 ###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
@@ -171,6 +171,14 @@ colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
 df1w <-pivot_wider(df1,names_from = metric)%>%
   filter(B.start ==100)
 
+gg_tip<-ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=Prob.Cross.TP,colour=Prob.Cross.TP))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick",)+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("CV of Monitoring")+
+  ylab("pFmsy")+
+  facet_wrap(~A)+
+  theme_pubr(legend="right")
 
 gg_danger<-ggplot(df1w,aes(x=CV,y=pFmsy))+
 geom_tile(aes(fill=yrs.near.thresh1,colour=yrs.near.thresh1))+
@@ -199,7 +207,17 @@ gg_rescue<-ggplot(df1w,aes(x=CV,y=pFmsy))+
   facet_wrap(~A)+
   theme_pubr(legend="right")
 
-plot_grid(gg_danger,gg_NPV,ncol=1)
+
+gg_rescue2<-ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=prob_rescue,colour=prob_rescue))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("CV of Monitoring")+
+  ylab("pFmsy")+
+  facet_wrap(~A)+
+  theme_pubr(legend="right")
+
+plot_grid(gg_tip,gg_danger,gg_NPV,gg_rescue,gg_rescue2,ncol=2)
 
 
 #####################################################################

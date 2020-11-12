@@ -14,14 +14,14 @@ phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 
 #create empty array with labels
-ar <- array(dim=c(length(FMSYvec),11,length(phivec),length(avec),length(B.vec)))
+ar <- array(dim=c(length(FMSYvec),12,length(phivec),length(avec),length(B.vec)))
 dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                               "SDBiomass","Ptip.MGMT","Fmsy","max.F.2",
-                              "yrs.near.thresh1","yrs.near.thresh2","rescue"),
+                              "yrs.near.thresh1","yrs.near.thresh2","rescue","prob_rescue"),
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 100
+n.iters = 300
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -58,9 +58,10 @@ for(b in seq(B.vec)){
         ar[i,6,j,a,b] <-sum(value[[4]])/n.iters #add one for number of times dip below mgmt threshold    
         ar[i,7,j,a,b] <-Fmsy
         ar[i,8,j,a,b] <-max.F.2
-        ar[i,9,j,a,b] <-median(value$thresh1)
-        ar[i,10,j,a,b]<-median(value$thresh2)
-        ar[i,11,j,a,b]<-median(value$rescue)
+        ar[i,9,j,a,b] <-median(value$thresh1) #k/2 threshold for danger
+        ar[i,10,j,a,b]<-median(value$thresh2) #k/4 threshold for danger
+        ar[i,11,j,a,b]<-median(value$rescue) #number of rescues
+        ar[i,12,j,a,b]<-length(which(value$rescue>0))/length(value$rescue) #probability of rescue
         
       }
     }

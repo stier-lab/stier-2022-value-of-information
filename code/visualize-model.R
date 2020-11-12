@@ -78,7 +78,7 @@ abline(h = threshold,col='red',lty=2)
 
 B.start = 100 #start below A
 plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
-title("Bstart = 100, CV=0.5")
+title("Bstart = 100, sCV=0.5")
 for(i in 1:20){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
