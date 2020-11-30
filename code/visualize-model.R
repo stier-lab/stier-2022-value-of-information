@@ -94,18 +94,18 @@ abline(h = threshold,col='red',lty=2)
 # -------------------------------------------------------------------------
 #as slop
   
-  for(i in 1:20)
+  for(i in 1:22)
   max.F<-1*Fmsy
-  A=10
+  A=30
   plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
   abline(h = A,col='red')
   threshold = K/2
   abline(h = threshold,col='red',lty=2)
   
-  emat<-matrix(0,ncol=3,nrow=20)
+  emat<-matrix(0,ncol=5,nrow=20)
   
   for(i in 1:20){
-    B.start = 100
+    B.start = 75
     phi.CV.seed<-round(100000*runif(1),0)
     process.noise.seed<-round(100000*runif(1),0)
     model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
@@ -113,15 +113,45 @@ abline(h = threshold,col='red',lty=2)
           col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
     dangerzone(model.output.highCV$B,A=10,thresh=K/2)
     model.output.highCV$TP
+    
+    # temp_mat <- matrix(NA,nrow=length(model.output.highCV$B)+1,ncol=2)
+    # 
+    # for(j in 1:length(model.output.highCV$B)){
+    #   temp_mat[j+1,1]<-ifelse(model.output.highCV$B[j+1]>threshold & model.output.highCV$B[j]<threshold,1,0) # number of dangers 
+    #   temp_mat[j+1,2]<-ifelse(model.output.highCV$B[j+1]<threshold & model.output.highCV$B[j]>threshold,1,0) # number of rescues 
+    # }
+    
     emat[i,1]<-dangerzone(model.output.highCV$B,A=10,thresh=K/2)
     emat[i,2]<-model.output.highCV$TP
     emat[i,3]<-length(which(model.output.highCV$B <K/2 & model.output.highCV$B >A & model.output.highCV$TP==0)) #this only gives us when collapse but not necessarily recovery
-    
+    # emat[i,4]<-colSums(temp_mat,na.rm=T)[2]#num dangerzone recoveries 
+    # emat[i,5]<-colSums(temp_mat,na.rm=T)[1]#num dangerzone entries
+
   }
 
+  #can you come up with a way to say how much more successful you are at rescuing when you are at high levels of monitoring compared to low, for a given fishing effort
+  #that'd be something like the ratio of times a time series goes to collapse when it goes to the danger zone compared to getting rescued
+  #which of the biomass <K/2 and collapses not sure how to measure that yet gotta think some more 
+  
   #maximim fraction dz   
 print(max(emat[,1]))
   
   df <- as.data.frame(emat)
-colnames(df) <-c("fraction-danger","tipped","num_rescues")
-        
+colnames(df) <-c("fraction-danger","tipped","num_pop_rescues","num_dangers","num_rescues")
+df$frac_rescue <-df$num_rescues/df$num_dangers
+
+mean(df$frac_rescue,na.rm=T)
+
+vec<-rpois(30,5)
+evec<-rep(NA,length(vec))
+for(i in 1:length(vec)){
+  evec[i]<-ifelse(vec[i+1]>4 & vec[i] >4,1,0)
+}
+    
+
+vec2<-lag(vec)
+t_df<-data.frame(vec,vec2)
+t_df%>%
+  mutate("tip" = 
+           case_when(vec>4 & vec2<4 ~ 1)
+  )

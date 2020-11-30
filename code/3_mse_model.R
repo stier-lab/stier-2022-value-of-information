@@ -86,8 +86,23 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
     #Byear <- ifelse(i>1,B.vec[i],B.start) #starting biomass
     #start simulation with set initial deviation based on initial value 
     #Bhat.vec[1] <- ifelse(B.start>B.crit,sample(B.errors.high,1)*B.start,sample(B.errors.low,1)*B.start) 
+   
+  
+  
     
+     
   }
+  
+  #RECUE PROB
+  temp_mat <- matrix(NA,nrow=length(B.vec)+1,ncol=2)
+  
+  threshold=K/2
+  
+  for(j in 1:length(B.vec)){
+    temp_mat[j+1,1]<-ifelse(B.vec[j+1]>threshold & B.vec[j]<threshold,1,0) # number of dangers 
+    temp_mat[j+1,2]<-ifelse(B.vec[j+1]<threshold & B.vec[j]>threshold,1,0) # number of rescues 
+  }
+  
   
   # RESPONSE VARIABLES
   Value<-(Y.vec*p)-(c*Y.vec/B.vec[1:years])
@@ -98,18 +113,20 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   TP <- ifelse(B.vec[years]>A,0,1)
   TPBMSY<-ifelse(B.vec[years]>(0.25*Bmsy),0,1)
   phi.CV <-phi.CV
+  rescue_prob<- mean(colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2],na.rm=T)#fraction of times dipped into danger then reocviered
+  
   
   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
   #moncost <-sum(cm/phi.CV,na.rm=T) #monitoring cost is the cm constatn (just a random number) divided by the cv. 
   #moncost<-sum(-10*cm*phi.CV+50,na.rm=T) #to show that adaptive monitoring is same price when linear
-  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec))
+  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue_prob=rescue_prob))
 }
 
 
-######
-# Test est.NPV function 
-######
-
+#####
+# Test est.NPV function
+#####
+# 
 # source("code/2_model_parameters.R") # load base parameters
 # 
 # mf0.5<-max.F*0.5
@@ -119,7 +136,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
 # A=10
 # B.start=85
 # 
-# t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
+# t<-est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
 # print(t)
 # 
 # 
@@ -133,6 +150,12 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
 # 
 # cm2=ci*exp(-cs*cvec)
 # plot(cvec,cm2,type="l")
+# plot(t$B,type="l",xlim=c(0,25),ylim=c(0,100))
+# abline(h = A,col='red')
+# threshold = K/2
+# abline(h = threshold,col='red',lty=2)
+# t$rescue_prob
+
 
 
 
@@ -156,6 +179,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   phi.CV.seed.save<-rep(NA,n.iters)
   thresh2 <- thresh1 <- rep(NA,n.iters)
   rescue<-rep(NA,n.iters)
+  rescue_prob<-rep(NA,n.iters)
   
   
   for (i in 1:n.iters){
@@ -178,7 +202,12 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2) #2A?
     thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4) 
     rescue[i]  <- length(which(model.output$B <K/2 & model.output$B>A & model.output$B>A))
+    rescue_prob[i] <- model.output$rescue_prob
+   
+    
+    # rescue2[i] <- length
 
+    
     Y[i] <-median(model.output$Y)
     phi.CV[i] <-mean(model.output$phi.CV,na.rm=T)
     cost.monitor[i] <- model.output$cost.monitor
@@ -189,15 +218,15 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,
               B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,
               NPV_minusCM=NPV_minusCM,pFmax=pFmax,
-              thresh1=thresh1,thresh2=thresh2,rescue=rescue))
+              thresh1=thresh1,thresh2=thresh2,rescue=rescue,rescue_prob=rescue_prob))
 }
 
 
 
 
-############################################################
-# Test repeat.model2 
-############################################################
+###########################################################
+# Test repeat.model2
+###########################################################
 # 
 # start.B.list<-seq(20,100,by=1)
 # 
@@ -206,7 +235,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # phi.seeds<-round(1000000*runif(n.iters),0)
 # process.seeds<-round(1000000*runif(n.iters),0)
 # 
-# A=10
+# A=30
 # Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
 # B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
 # MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
@@ -221,7 +250,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # 
 # #not that ptip is very dependent upon the starting density
 # 
-# value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
+# value = repeat.model2(n.iters,B.start=50,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
 # return.value<-median(c(value[[1]]))
 # return.BB<-median(c(value[[2]]))
 # return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A
@@ -230,7 +259,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # return.B <-value[[6]]
 # return.cm<-value[[9]]
 # value
-# 
+
 
 
 ##########################################################################################################################
