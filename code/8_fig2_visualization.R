@@ -51,7 +51,13 @@ Fig2 <- function(outputs = ar){
 Fig2(outputs = ar)
 
 
-#plot time below A+K/2 for cv=0.5 against ROI 
+
+#####################################################################
+#####################################################################
+#Plot time below A+K/2 for cv=0.5 against ROI or just raw NPV for cv=0.1 and 0.5
+#####################################################################
+#####################################################################
+
 
 load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
 
@@ -242,6 +248,23 @@ gg_rescue_prob2<-ggplot(df1w,aes(x=CV,y=pFmsy))+
 
 
 plot_grid(gg_tip,gg_danger,gg_NPV,gg_rescue,gg_rescue2,gg_rescue_prob2,ncol=2)
+
+#just A=10
+load("output/simulation/fig2_rescue_acs_2020-11-30_500.Rdata") #this is the original simulation. dataframe = ar
+
+df1 = melt(ar,varnames=names(dimnames(ar)))
+colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
+df1w <-pivot_wider(df1,names_from = metric)%>%
+  filter(B.start ==70 & A == "A = 10")
+
+ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=prob_rescue2,colour=prob_rescue2))+
+  scale_fill_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  xlab("CV of Monitoring")+
+  ylab("pFmsy")+
+  facet_wrap(~A)+
+  theme_pubr(legend="right")
 
 
 #####################################################################
