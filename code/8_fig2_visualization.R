@@ -257,13 +257,14 @@ colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
 df1w <-pivot_wider(df1,names_from = metric)%>%
   filter(B.start ==70 & A == "A = 10")
 
+c("#7ACCD7", "#115896", "#7C6C65", "#4C4C53", "#BA2F00", "#21282F")
+
 ggplot(df1w,aes(x=CV,y=pFmsy))+
   geom_tile(aes(fill=prob_rescue2,colour=prob_rescue2))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  scale_fill_gradient(low="#7ACCD7",high="#BA2F00")+
+  scale_colour_gradient(low="#7ACCD7",high="#BA2F00")+
   xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
+  ylab("Havest Rate (pFmsy)")+
   theme_pubr(legend="right")
 
 
