@@ -59,16 +59,23 @@ print(paste("return on investment =",round(model.output.lowCV$NPV-model.output.h
 btest <- model.output.lowCV$B
 # length(which(be[years]<A))/ length(B.vec)
 
+emat_cv_0.1<-matrix(0,nrow=21,ncol=20)
+emat_cv_0.5<-matrix(0,nrow=21,ncol=20)
 
 # -------------------------------------------------------------------------
+
+
+max.F=0.5
+
 par(mfrow=c(1,2))
-plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
 title("Bstart = 100")
 for(i in 1:20){
-  B.start = 100
+  B.start = 75
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
   model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  emat_cv_0.1[,i]<-model.output.highCV$B
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
@@ -76,16 +83,37 @@ abline(h = A,col='red')
 threshold = K/2
 abline(h = threshold,col='red',lty=2)
 
-B.start = 100 #start below A
-plot(1:21, model.output.highCV$B,type='n',ylim=c(0,200),ylab='B',xlab = "Year")
+B.start = 75 #start below A
+plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
 title("Bstart = 100, sCV=0.5")
 for(i in 1:20){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
   model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  emat_cv_0.5[,i]<-model.output.highCV$B
   lines(1:21,model.output.highCV$B,
         col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
+abline(h = A,col='red')
+threshold = K/2
+abline(h = threshold,col='red',lty=2)
+
+df0.1<-melt(emat_cv_0.1)
+df0.1$cv<-"cv_0.1"
+
+df0.5<-melt(emat_cv_0.5)
+df0.5$cv<-"cv_0.5"
+
+time_df<-data.frame(rbind(df0.1,df0.5))
+names(time_df)<-c("time","iter","biomass","cv")
+
+ggplot(time_df,aes(x=time,y=biomass,colour=cv,group=iter))+
+  geom_line()+
+  facet_wrap(~cv)+
+  theme_classic()+
+  geom_hline(yintercept=10)+
+  geom_hline(yintercept=K/2)
+
 abline(h = A,col='red')
 threshold = K/2
 abline(h = threshold,col='red',lty=2)

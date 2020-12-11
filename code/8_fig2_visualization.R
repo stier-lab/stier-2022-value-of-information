@@ -70,7 +70,7 @@ df1w <-pivot_wider(df1,names_from = metric)%>%
 df1w$CV = as.factor(df1w$CV)
 
 gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy))+
-  geom_point()+
+  # geom_point()+
   geom_line(se=F,colour="black")+
   scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy")+
   xlab("% Time in Danger Zone (below A + K/2)") +
@@ -84,6 +84,7 @@ gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy))+
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
 
+outputs<-ar
 
   npv_ratio <- (outputs[,1, 1 ,1,] / outputs[,1,5,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
   t_near_tp <- outputs[,9, 5 ,1,] #time spent near tipping point at cv=0.5
