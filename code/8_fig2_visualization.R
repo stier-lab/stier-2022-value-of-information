@@ -59,7 +59,8 @@ Fig2(outputs = ar)
 #####################################################################
 
 
-load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
+# load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_dz_acs_2020-12-15_1000.Rdata") #this is the original simulation. dataframe = ar
 
 
 df1 = melt(ar,varnames=names(dimnames(ar)))
@@ -69,16 +70,23 @@ df1w <-pivot_wider(df1,names_from = metric)%>%
 
 df1w$CV = as.factor(df1w$CV)
 
-gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy))+
-  # geom_point()+
-  geom_line(se=F,colour="black")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy")+
+df1w$pFmsy<-100*df1w$pFmsy
+
+#thin the data? this doen'st work yet...
+# df1wb<-df1w%>%
+# slice(which(row_number() %% 5 == 1))
+
+gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,alpha=0.5,colour=pFmsy,group=pFmsy))+
+  geom_point()+
+  geom_line(aes(alpha=0.5))+
+  scale_colour_gradientn(colours = pal,name="Maximum Fishing Rate (%F_MSY)", guide = gc)+
   xlab("% Time in Danger Zone (below A + K/2)") +
   ylab("Net Present Value") +
   theme_pubr(legend="right")
-  
+# annotate("segment", x = 87.5, y = 110, xend = 87.5, yend = 98,
+#          arrow = arrow(type = "closed", length = unit(0.02, "npc")))
 
-
+print(gg_abs_npv)
 #this looks as a function of time below a threshold /i.e.dangerzone and ROI
 
 #order of ar dimensions 
@@ -92,14 +100,15 @@ outputs<-ar
   pFmsy<-as.numeric(names(ptip))
   npv_ratio3 <- data.frame(t_near_tp,ptip,npv_ratio,pFmsy)
   
-gg_roi<-  ggplot(npv_ratio3,aes(npv_ratio3,x=t_near_tp,y=npv_ratio,group=pFmsy)) +
+gg_roi<-  ggplot(npv_ratio3,aes(npv_ratio3,x=t_near_tp,y=npv_ratio)) +
     geom_point(aes(colour=pFmsy)) +
+    geom_smooth(se=F,color="black")+
     # facet_wrap(~B.start, scales = "free_y") +
     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
     xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
     theme_pubr(legend="right")+
-    geom_hline(yintercept=1)
+    geom_hline(yintercept=1,lty=2)
   
 
   plot_grid(gg_abs_npv,gg_roi,ncol=1)
@@ -250,6 +259,9 @@ gg_rescue_prob2<-ggplot(df1w,aes(x=CV,y=pFmsy))+
 
 plot_grid(gg_tip,gg_danger,gg_NPV,gg_rescue,gg_rescue2,gg_rescue_prob2,ncol=2)
 
+plot_grid(gg_tip,gg_NPV,gg_rescue_prob2,ncol=1)
+
+
 #just A=10
 load("output/simulation/fig2_rescue_acs_2020-11-30_500.Rdata") #this is the original simulation. dataframe = ar
 
@@ -267,6 +279,13 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
   xlab("CV of Monitoring")+
   ylab("Havest Rate (pFmsy)")+
   theme_pubr(legend="right")
+
+
+
+
+
+
+
 
 
 #####################################################################

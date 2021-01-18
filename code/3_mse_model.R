@@ -122,10 +122,10 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue_prob=rescue_prob))
 }
 
-
-#####
+# 
+# ####
 # Test est.NPV function
-#####
+# ####
 # 
 # source("code/2_model_parameters.R") # load base parameters
 # 
@@ -223,10 +223,10 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 
 
 
-
-###########################################################
+# 
+# ##########################################################
 # Test repeat.model2
-###########################################################
+# ##########################################################
 # 
 # start.B.list<-seq(20,100,by=1)
 # 

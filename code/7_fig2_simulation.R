@@ -80,7 +80,7 @@ save(ar,file=here::here("output","simulation",paste("fig2_mcs_",Sys.Date(),"_",n
 
 
 #set parameter range for surface of simulated parameters
-years = 20
+years = 100
 B.vec <-c(70)#seq(50,100, by = 10) #MCS: used to be by 5
 avec <- c(10) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
@@ -94,7 +94,7 @@ dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 300
+n.iters = 1000
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -141,7 +141,7 @@ for(b in seq(B.vec)){
   }
 }
 
-save(ar,file=here::here("output","simulation",paste("fig2_dz_acs_",Sys.Date(),"_",n.iters,".Rdata",sep="")))
+save(ar,file=here::here("output","simulation",paste("fig2_dz_acs_100yr",Sys.Date(),"_",n.iters,".Rdata",sep="")))
 
 
 

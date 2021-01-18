@@ -1,4 +1,3 @@
-#source("code/MSE_Model_JS.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 source("code/0_libraries.R") #load packages that are relevant
 source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
@@ -20,7 +19,7 @@ MSY<-25
 K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A)
 r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
 Fmsy<-MSY/Bmsy
-max.F<-0.5*Fmsy
+max.F<-Fmsy
 B.lim<-20 # lower biomass limit for harvest control rule
 
 B.start<-61
@@ -59,44 +58,42 @@ print(paste("return on investment =",round(model.output.lowCV$NPV-model.output.h
 btest <- model.output.lowCV$B
 # length(which(be[years]<A))/ length(B.vec)
 
-emat_cv_0.1<-matrix(0,nrow=21,ncol=20)
-emat_cv_0.5<-matrix(0,nrow=21,ncol=20)
+emat_cv_0.1<-matrix(0,nrow=51,ncol=3)
+emat_cv_0.5<-matrix(0,nrow=51,ncol=3)
 
 # -------------------------------------------------------------------------
-
-
-max.F=0.5
-
-par(mfrow=c(1,2))
-plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
-title("Bstart = 100")
-for(i in 1:20){
-  B.start = 75
+maxf2<-1*max.F
+years=50
+# par(mfrow=c(1,2))
+# plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
+# title("Bstart = 100")
+for(i in 1:3){
+  B.start = Bmsy
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F=maxf2,phi.CV.seed,process.noise.seed,c)
   emat_cv_0.1[,i]<-model.output.highCV$B
-  lines(1:21,model.output.highCV$B,
-        col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
+  # lines(1:21,model.output.highCV$B,
+        # col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
-abline(h = A,col='red')
-threshold = K/2
-abline(h = threshold,col='red',lty=2)
+# abline(h = A,col='red')
+# threshold = K/2
+# abline(h = threshold,col='red',lty=2)
 
-B.start = 75 #start below A
-plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
-title("Bstart = 100, sCV=0.5")
-for(i in 1:20){
+B.start = Bmsy #start below A
+# plot(1:21, model.output.highCV$B,type='n',ylim=c(0,100),ylab='B',xlab = "Year")
+# title("Bstart = 100, sCV=0.5")
+for(i in 1:3){
   phi.CV.seed<-round(100000*runif(1),0)
   process.noise.seed<-round(100000*runif(1),0)
-  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
+  model.output.highCV <- est.NPV(years,K,A,r,phi.CV.low=0.3,phi.CV.high=0.3,delta,process.noise,p,B.start,B.lim,B.crit,max.F=maxf2,phi.CV.seed,process.noise.seed,c)
   emat_cv_0.5[,i]<-model.output.highCV$B
-  lines(1:21,model.output.highCV$B,
-        col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
+  # lines(1:21,model.output.highCV$B,
+        # col = rgb(0, 0, 255, max = 255, alpha = 125, names = "blue50"))
 }
-abline(h = A,col='red')
-threshold = K/2
-abline(h = threshold,col='red',lty=2)
+# abline(h = A,col='red')
+# threshold = K/2
+# abline(h = threshold,col='red',lty=2)
 
 df0.1<-melt(emat_cv_0.1)
 df0.1$cv<-"cv_0.1"
@@ -107,16 +104,50 @@ df0.5$cv<-"cv_0.5"
 time_df<-data.frame(rbind(df0.1,df0.5))
 names(time_df)<-c("time","iter","biomass","cv")
 
-ggplot(time_df,aes(x=time,y=biomass,colour=cv,group=iter))+
-  geom_line()+
-  facet_wrap(~cv)+
-  theme_classic()+
-  geom_hline(yintercept=10)+
-  geom_hline(yintercept=K/2)
 
-abline(h = A,col='red')
-threshold = K/2
-abline(h = threshold,col='red',lty=2)
+time_df2<-time_df %>%
+  mutate(cv = recode(cv,
+                     'cv_0.1' = "Precise Monitoring (CV = 0.1)",
+                     'cv_0.5' = "Inexact Monitoring (CV = 0.5"))%>%
+  mutate(cv = as.factor(cv))
+  
+  # time_df2$cv<-fct_relevel(time_df2$cv, rev)
+#   filter(complete.cases(.))
+
+time_df2$iter<-as.factor(time_df2$iter)
+
+
+
+
+# levels(time_df$cv) <- c("Precise Monitoring", "Inexact Monitoring")
+
+ggplot(time_df2,aes(x=time,y=biomass,colour=iter,group=iter,lty=iter))+
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = A, ymax = 0.8*Bmsy, 
+           alpha = .3)+
+  geom_line(size=0.75)+
+  facet_wrap(~cv)+
+  #@           labeller = labeller(cv = supp.labs))+
+  theme_classic()+
+  geom_hline(yintercept=10,lty=2)+
+  geom_hline(yintercept=0.8*Bmsy,lty=3)+
+  xlab("Year")+
+  ylab("Fish Biomass")+
+  labs(colour="Model \nIteration",lty="Model \nIteration")+
+  # scale_colour_manual(values = wes_palette("Moonrise3"))+
+  scale_colour_manual(values=wes_palette("Zissou1", 3, type = "continuous"))+
+  theme(
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12),
+    axis.title = element_text(size = 16))
+
+ggsave("output/figures/time_series/time_series_1_14_2021.pdf",width=7.5,height=4)
+
+  
+
+#Increase text, try different colored lines 
+#considering using B/Bmsy = 0.5 or 0.75 Bmsy as overfished threshold for dangerzone to clarify it 
+#https://sustainablefisheries-uw.org/seafood-101/overfished-overfishing-rebuilding-stocks/ 0.8*bmsy
+
 
 
 # -------------------------------------------------------------------------

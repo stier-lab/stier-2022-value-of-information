@@ -12,6 +12,7 @@ library(tidyverse)
 library(cowplot)
 library(gdata)
 library(wesanderson)
+library(stringr)
 
 pal <- wes_palette("Zissou1", 100, type = "continuous")
 
