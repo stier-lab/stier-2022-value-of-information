@@ -8,7 +8,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #Number of Iterations 
-n.iters=100
+n.iters=1000
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
 
@@ -29,9 +29,9 @@ phitab[,2]<-0.5
 phitab[1,3]<-0.1
 phitab[2,3]<-0.5
 
-bcritvec<-c(0.25,0.5,1,1.25) #different thresholds for when more precise monitoring kicks in
+bcritvec<-1#c(0.25,0.5,1,1.25) #different thresholds for when more precise monitoring kicks in
 csvec<-c(1,5,10) #different costs of monitoring
-mfvec<-seq(0,2,by=0.1) #
+mfvec<-seq(0,2,by=0.01) #
 
 ###################################################Need to run and see how to melt right 
 #Set up Empty data Frame
@@ -76,7 +76,7 @@ for(c in 1:length(csvec)){
 save(edf,file=here("output/simulation",paste("precautionary_buffer",Sys.Date(),n.iters,".Rdata")))
 
 
-load("output/simulation/precautionary_buffer 2020-12-18 100 .Rdata")
+load("output/simulation/precautionary_buffer 2021-01-18 100 .Rdata")
 
 
 ##Univariate Response
@@ -98,7 +98,7 @@ for(i in 1:length(csvec)){
   
   temp<-subset(mm3,cs==csvec[i])
   temp_b<-subset(temp,mf==1.5) 
-  temp_b<-subset(temp_b,Bcrit==0.5)
+  temp_b<-subset(temp_b,Bcrit==1)
   temp_b$metric <-factor(temp_b$metric,levels=c("NPV","Monitoring","Prob_Tip"))
   
   
@@ -140,6 +140,39 @@ for(i in 1:length(csvec)){
   
   
   print(gsmooth)
+  
+  cv0.1<-
+  temp3b%>%
+    filter(cv=="fixedCV0.1")
+    
+  line0.1<-predict(loess(mf~ratio,data=cv0.1))
+  
+  cv0.5<-
+    temp3b%>%
+    filter(cv=="fixedCV0.5")
+  
+  line0.5<-predict(loess(mf~ratio,data=cv0.5))
+  
+  cv0.1_0.5<-
+    temp3b%>%
+    filter(cv=="PrecautionaryBufferCV")
+  
+  line0.1_0.5<-predict(loess(ratio~mf,data=cv0.1_0.5))
+  
+  pred_df<-data.frame(line0.1,line0.5,line0.1_0.5)
+  names(pred_df)<-c("High Monitoring","Low Monitoring","Precautionary Buffer")
+  pred_df$mf<-cv0.5$mf
+  
+  pred_df2<-pivot_longer(pred_df,!mf)
+  pred_df2$tip<-c(cv0.1$ptip,cv0.5$ptip,cv0.1_0.5$ptip)
+  pred_df2$name<-as.factor(pred_df2$name)
+  
+  gsmooth2<-
+  ggplot(pred_df2,aes(x=mf,y=value))+
+    geom_line(aes(group=name,colour=tip))
+    # facet_wrap(~name)
+  print(gsmooth2)
+  
   
   # ggsave(paste("Biplot_NPV_Cost_Tip_nofacet.pdf","costfucntionslope=",csvec[i],".pdf"),gsmooth)
   
