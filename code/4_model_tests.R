@@ -9,6 +9,37 @@ source(here::here("code","archive","multiplot.R")) #graphic hack 2
 source(here::here("code","2_model_parameters.R")) # base parameters
 source(here::here("code","3_mse_model.R")) #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
+
+#############################################################
+#VISUALIZE COST FUNCTION WITH DIFFERENT SLOPES
+#############################################################
+
+# #Test cost function
+
+# test cost function for monitoring
+# function is   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
+# where ci <- 100 #intecept of decay in cost of monitoring function
+# cs <- 5 is the slope of the monitoring function
+# phi.cv is the cv of monitoring
+
+#if we make a vector of potential CVs 
+cvec=seq(0.05,0.5,by=0.01)
+
+#set the max cost at highest precision
+ci<-100
+
+#set the rate at which cost decays
+cs<-1
+
+#then simluate for a given 
+cm1=ci*exp(-1*cvec) #cs=1
+cm5=ci*exp(-5*cvec) #cs = 5
+cm10=ci*exp(-10*cvec) #cs = 10
+
+plot(cvec,cm1,type="l",xlim=c(0,0.6),ylim=c(0,100),ylab="monitoring cost",xlab="monitoring precision")
+lines(cvec,cm5,type="l",col=2)
+lines(cvec,cm10,type="l",col=4)
+
 #############################################################
 #BELOW PLOT A 4 panel figure for the conceptual description of the model 
 #############################################################
