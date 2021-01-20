@@ -1,6 +1,6 @@
 source("code/0_libraries.R") #load packages that are relevant
 source("code/2b_dangerzone.R") #load performance measure fn for proximity to A
-
+source("code/2_model_parameters.R")
 #############################################################
 #Define the net present value for a fixed monitoring investment 
 #############################################################
@@ -128,28 +128,46 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
 # ####
 # 
 # source("code/2_model_parameters.R") # load base parameters
-# 
+#
 # mf0.5<-max.F*0.5
 # mf1.3<-max.F*1.3
 # mf1.9<-max.F*1.9
 # phi.CV.low=phi.CV.high=0.0
 # A=10
 # B.start=85
-# 
+#
 # t<-est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
 # print(t)
-# 
-# 
+#
+#
 # plot(t$phi.CV[-1])
-# 
-# #Test
-# sum(ci*exp(-cs*t$phi.CV),na.rm=T)
-# 
-# #test cost function for monitoring
-# cvec=seq(0.05,0.5,by=0.01)
-# 
-# cm2=ci*exp(-cs*cvec)
-# plot(cvec,cm2,type="l")
+
+# #Test cost function
+
+# test cost function for monitoring
+# function is   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
+# where ci <- 100 #intecept of decay in cost of monitoring function
+# cs <- 5 is the slope of the monitoring function
+# phi.cv is the cv of monitoring
+
+#if we make a vector of potential CVs 
+cvec=seq(0.05,0.5,by=0.01)
+
+#set the max cost at highest precision
+ci<-100
+
+#set the rate at which cost decays
+cs<-1
+
+#then simluate for a given 
+cm1=ci*exp(-1*cvec) #cs=1
+cm5=ci*exp(-5*cvec) #cs = 5
+cm10=ci*exp(-10*cvec) #cs = 10
+
+plot(cvec,cm1,type="l",xlim=c(0,0.6),ylim=c(0,100),ylab="monitoring cost",xlab="monitoring precision")
+lines(cvec,cm5,type="l",col=2)
+lines(cvec,cm10,type="l",col=4)
+
 # plot(t$B,type="l",xlim=c(0,25),ylim=c(0,100))
 # abline(h = A,col='red')
 # threshold = K/2
