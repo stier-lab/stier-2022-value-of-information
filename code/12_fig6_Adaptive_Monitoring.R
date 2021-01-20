@@ -29,7 +29,7 @@ phitab[,2]<-0.5
 phitab[1,3]<-0.1
 phitab[2,3]<-0.5
 
-bcritvec<-1#c(0.25,0.5,1,1.25) #different thresholds for when more precise monitoring kicks in
+bcritvec<-c(0.25,0.5,1,1.25) #different thresholds for when more precise monitoring kicks in
 csvec<-c(1,5,10) #different costs of monitoring
 mfvec<-seq(0,2,by=0.01) #
 
@@ -76,12 +76,12 @@ for(c in 1:length(csvec)){
 save(edf,file=here("output/simulation",paste("precautionary_buffer",Sys.Date(),n.iters,".Rdata")))
 
 
-load("output/simulation/precautionary_buffer 2021-01-18 100 .Rdata")
+load("output/simulation/precautionary_buffer 2021-01-19 100 .Rdata")
 
 
 ##Univariate Response
 
-mm<-melt(edf[,-1,,,])
+mm<-melt(edf[,,,,])
 names(mm)<-c("cv","metric","Bcrit","cs","mf","value")
 mm$metric <-factor(mm$metric,levels=c("NPV","Monitoring","NPV_minus_Monitoring","Prob_Tip"))
 mm$cv <-factor(mm$cv,levels=c("fixedCV0.1","fixedCV0.5","PrecautionaryBufferCV","mean_PBCV"))
@@ -97,7 +97,7 @@ pdf(paste("output/figures/Buffer/Cost_Benefit",Sys.Date(),".pdf"), width=12,onef
 for(i in 1:length(csvec)){
   
   temp<-subset(mm3,cs==csvec[i])
-  temp_b<-subset(temp,mf==1.5) 
+  temp_b<-subset(temp,mf==1) 
   temp_b<-subset(temp_b,Bcrit==1)
   temp_b$metric <-factor(temp_b$metric,levels=c("NPV","Monitoring","Prob_Tip"))
   
@@ -130,7 +130,8 @@ for(i in 1:length(csvec)){
   
   gsmooth<-ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
     geom_point(aes(colour=ptip,pch=cv))+
-    geom_smooth(aes(lty=cv),se=F,colour="black")+
+    geom_line(aes(colour=ptip))+
+    geom_smooth(aes(lty=cv,colour=ptip),se=F)+
     theme_classic()+
     scale_colour_gradient(low="dodgerblue",high="red")+
     xlab("Maximum Fishing Effort")+
