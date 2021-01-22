@@ -7,7 +7,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #set parameter range for surface of simulated parameters
-years = 20
+years = 50
 B.vec <-c(55,70,100)#seq(50,100, by = 10) #MCS: used to be by 5
 avec <- c(10,20,30) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
@@ -38,7 +38,7 @@ for(b in seq(B.vec)){
         #dictate the monitoring investment as fixed
         phi.CV.low=phi.CV.high=phivec[j]
         
-        #calculate maxF
+        #calculate max.F
         A=avec[a]
         Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
         B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 

@@ -96,7 +96,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   #RECUE PROB
   temp_mat <- matrix(NA,nrow=length(B.vec)+1,ncol=2)
   
-  threshold=K/2
+  threshold=0.8*Bmsy
   
   for(j in 1:length(B.vec)){
     temp_mat[j+1,1]<-ifelse(B.vec[j+1]>threshold & B.vec[j]<threshold,1,0) # number of dangers 
@@ -192,9 +192,9 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     dB[i] <-median(abs(model.output$B/model.output$Bhat))
     B[i] <-mean(model.output$B) #add output: number of years within 20% of A
     
-    thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/2) #2A?
-    thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = K/4) 
-    rescue[i]  <- length(which(model.output$B <K/2 & model.output$B>A & model.output$B>A))
+    thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.8*Bmsy) #2A?
+    thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.8*Bmsy) 
+    rescue[i]  <- length(which(model.output$B <0.8*Bmsy & model.output$B>A & model.output$B>A))
     rescue_prob[i] <- model.output$rescue_prob
    
     

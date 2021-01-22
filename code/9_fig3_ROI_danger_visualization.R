@@ -12,45 +12,6 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #ar has 5 dimensions: 1) pFmsy, 2) response variable, 3)  phi-uncertainty, 4) a values, 5) starting biomass 
 #so division or subtraction of the array is just the values of NPV 
 
-# get simulation outputs
-load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
-
-#order of ar dimensions 
-#1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
-
-###This figure shows how the ROI changes as a function of b.start 
-
-Fig2 <- function(outputs = ar){
-  npv_ratio <- (outputs[, 1, 1 ,1,] / outputs[, 1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  npv_ratio <- melt(npv_ratio)
-  names(npv_ratio) <- c("pFmsy","B.start","roi")
-  
-  #npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
-  npv_ratio2 <- npv_ratio
-  npv_ratio2$prox <- -1*(npv_ratio2$B.start) # starting biomass
-  #npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
-  # npv_ratio3<-npv_ratio2 %>%
-  # filter(pFmsy<0.8)%>%
-  # filter(B.start>30) for A=30
-  
-  
-  gs_ratio3 <- npv_ratio2 %>%
-                ggplot(aes(x=prox,y=roi,group=pFmsy)) +
-                geom_vline(xintercept=-10,lty=2,colour="grey",size=1) +
-                geom_vline(xintercept=-0.25*Bmsy,lty=3,colour="darkgrey",size=1) +
-                geom_line(aes(colour=pFmsy)) +
-                scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
-                # scale_x_continuous(limits=c(-100,-5),breaks=c(-100,-75,-50,-25)) +
-                xlab("starting density") +
-                ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
-                theme_pubr(legend="right")
-            
-  gs_ratio3
-}
-
-Fig2(outputs = ar)
-
-
 
 #####################################################################
 #####################################################################
@@ -360,4 +321,54 @@ ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
   geom_line()
 
 
+
+
+
+
+
+
+
+
+
+
+
+#=========GRAVEYARD===================#
+
+# # get simulation outputs
+# load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
+# 
+# #order of ar dimensions 
+# #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
+# 
+# ###This figure shows how the ROI changes as a function of b.start 
+# 
+# Fig2 <- function(outputs = ar){
+#   npv_ratio <- (outputs[, 1, 1 ,1,] / outputs[, 1, 5 ,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+#   npv_ratio <- melt(npv_ratio)
+#   names(npv_ratio) <- c("pFmsy","B.start","roi")
+#   
+#   #npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
+#   npv_ratio2 <- npv_ratio
+#   npv_ratio2$prox <- -1*(npv_ratio2$B.start) # starting biomass
+#   #npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
+#   # npv_ratio3<-npv_ratio2 %>%
+#   # filter(pFmsy<0.8)%>%
+#   # filter(B.start>30) for A=30
+#   
+#   
+#   gs_ratio3 <- npv_ratio2 %>%
+#     ggplot(aes(x=prox,y=roi,group=pFmsy)) +
+#     geom_vline(xintercept=-10,lty=2,colour="grey",size=1) +
+#     geom_vline(xintercept=-0.25*Bmsy,lty=3,colour="darkgrey",size=1) +
+#     geom_line(aes(colour=pFmsy)) +
+#     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
+#     # scale_x_continuous(limits=c(-100,-5),breaks=c(-100,-75,-50,-25)) +
+#     xlab("starting density") +
+#     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
+#     theme_pubr(legend="right")
+#   
+#   gs_ratio3
+# }
+# 
+# Fig2(outputs = ar)
 
