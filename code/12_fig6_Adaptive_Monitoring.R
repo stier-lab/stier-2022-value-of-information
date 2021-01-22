@@ -148,17 +148,17 @@ for(i in 1:length(csvec)){
     scale_colour_gradient(low="#00AFBB",high="#FC4E07")+
     scale_shape_discrete(
                         name = "Monitoring strategy",
-                        labels=c("Always High Precision (CV=0.1)",
-                                  "Always Low Precision ((CV=0.5)",
+                        labels=c("High Precision (CV=0.1)",
+                                  "Low Precision ((CV=0.5)",
                                   "Precautionary Buffer"))+
     scale_linetype_discrete(name = "Monitoring strategy",
-                                labels=c("Always High Precision (CV=0.1)",
-                                         "Always Low Precision ((CV=0.5)",
+                                labels=c("High Precision (CV=0.1)",
+                                         "Low Precision ((CV=0.5)",
                                          "Precautionary Buffer"))+
     scale_shape_discrete(
       name = "Monitoring strategy",
-      labels=c("Always High Precision (CV=0.1)",
-               "Always Low Precision ((CV=0.5)",
+      labels=c("High Precision (CV=0.1)",
+               "Low Precision ((CV=0.5)",
                "Precautionary Buffer"))+
     xlab("Maximum Fishing Effort pHMSY")+
     ylab("Value Ratio: NPV/Monitoring Cost")+

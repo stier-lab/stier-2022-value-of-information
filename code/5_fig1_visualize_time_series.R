@@ -34,20 +34,60 @@ Profit.lowCV<-p*model.output.lowCV$Y-c*F.low.CV
 F.high.CV<-model.output.highCV$Y/model.output.highCV$B[-21]
 Profit.highCV<-p*model.output.highCV$Y-c*F.high.CV
 
+visdf<-data.frame(
+  "Biomass"=c(model.output.lowCV$B[-51], model.output.highCV$B[-51]),
+  "Est. Biomass"=c(model.output.lowCV$Bhat[-51],model.output.highCV$Bhat[-51]),
+  "CV"=c(rep("CV=0.1",50),rep("CV=0.5",50)),
+  "Year" =c(seq(1:50))
+)
+
+visdf2<-pivot_longer(visdf,!CV & !Year)
+
+ggplot(data=visdf2,aes(x=Year,y=value))+
+  geom_line(aes(colour=CV,lty=name))+
+  facet_wrap(~CV)+
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = A, ymax = 0.8*Bmsy, 
+         alpha = .3)+
+  # geom_line(size=0.75)+
+  #@           labeller = labeller(cv = supp.labs))+
+  theme_classic()+
+  geom_hline(yintercept=10,lty=2)+
+  geom_hline(yintercept=0.8*Bmsy,lty=3)+
+  xlab("Year")+
+  ylab("Resource Biomass")+
+  # labs(colour="Model \nIteration",lty="Model \nIteration")+
+  # scale_colour_manual(values = wes_palette("Moonrise3"))+
+  scale_colour_manual(name = "Monitoring Precision",
+                      labels = c("High precision", "Low precision"),
+                                 values=wes_palette("Zissou1", 2, type = "continuous"))+
+  theme(
+    axis.text.x=element_text(size=10),
+    axis.text.y=element_text(size=10),
+    axis.title = element_text(size = 14))+
+  annotate("text", label = "Overharvest", size = 4, x = 10, y = 35)+
+  theme(
+    strip.background = element_blank(),
+    strip.text.x = element_blank()
+  )+
+  annotate("text", label = "Overharvest", size = 4, x = 10, y = 35)+
+  theme(
+
+
+ggsave("output/figures/time_series/true_estimated_bimoass.pdf",width=7,height=4)
 
 par(mfrow=c(2,2),las=1,mai=c(1,1.0,0.5,0.5))
-plot(1:20,model.output.lowCV$Y,type="l",lwd=2,col="red",ylim=c(0,100),xlab="years",ylab="catch or biomass",yaxs="i")
-lines(1:20,model.output.lowCV$B[-21],lwd=2,col="blue")
-lines(1:20,model.output.lowCV$Bhat[-21],lwd=2,col="black")
+plot(1:50,model.output.lowCV$Y,type="l",lwd=2,col="red",ylim=c(0,100),xlab="years",ylab="catch or biomass",yaxs="i")
+lines(1:50,model.output.lowCV$B[-51],lwd=2,col="blue")
+lines(1:50,model.output.lowCV$Bhat[-51],lwd=2,col="black")
 
-plot(1:20,Profit.lowCV,type="l",lwd=2)
+plot(1:50,Profit.lowCV,type="l",lwd=2)
 
 
-plot(1:20,model.output.highCV$Y,type="l",lwd=2,col="red",ylim=c(0,100),xlab="years",ylab="catch or biomass",yaxs="i")
-lines(1:20,model.output.highCV$B[-21],lwd=2,col="blue")
-lines(1:20,model.output.highCV$Bhat[-21],lwd=2,col="black")
+plot(1:50,model.output.highCV$Y,type="l",lwd=2,col="red",ylim=c(0,100),xlab="years",ylab="catch or biomass",yaxs="i")
+lines(1:50,model.output.highCV$B[-51],lwd=2,col="blue")
+lines(1:50,model.output.highCV$Bhat[-51],lwd=2,col="black")
 
-plot(1:20,Profit.highCV,type="l",lwd=2)
+plot(1:50,Profit.highCV,type="l",lwd=2)
 
 print(paste("Model outputs =",model.output.lowCV$NPV,",",model.output.highCV$NPV))
 
