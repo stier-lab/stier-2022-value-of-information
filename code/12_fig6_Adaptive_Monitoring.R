@@ -44,7 +44,6 @@ dimnames(edf) = list(cv,c("CV","NPV","Monitoring","NPV_minus_Monitoring","Prob_T
 # Prob_Tip <-rep(0,4)
 # edf <- data.frame(cv,NPV,Monitoring,NPV_minus_Monitoring,Prob_Tip)
 
-
 for(c in 1:length(csvec)){  
   for(bc in 1:length(bcritvec)){
     for(i in 1:ncol(phitab)){
@@ -76,7 +75,7 @@ for(c in 1:length(csvec)){
 save(edf,file=here("output/simulation",paste("precautionary_buffer",Sys.Date(),n.iters,".Rdata")))
 
 
-load("output/simulation/precautionary_buffer 2021-01-19 1000 .Rdata")
+load("output/simulation/precautionary_buffer 2021-01-22 5000 .Rdata")
 
 
 ##Univariate Response
@@ -142,27 +141,41 @@ for(i in 1:length(csvec)){
   print(gsmooth)
   
   ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
-    geom_point(aes(colour=ptip,pch=cv))+
-    geom_line(aes(colour=ptip))+
     geom_smooth(aes(lty=cv),colour="gray60",se=F)+
+     geom_point(aes(colour=ptip,pch=cv),alpha=0.5,size=3)+
+    geom_line(aes(colour=ptip))+
     theme_pubr(legend="right")+
-    scale_colour_gradient(low="dodgerblue",high="red")+
+    scale_colour_gradient(low="#00AFBB",high="#FC4E07")+
+    scale_shape_discrete(
+                        name = "Monitoring strategy",
+                        labels=c("Always High Precision (CV=0.1)",
+                                  "Always Low Precision ((CV=0.5)",
+                                  "Precautionary Buffer"))+
+    scale_linetype_discrete(name = "Monitoring strategy",
+                                labels=c("Always High Precision (CV=0.1)",
+                                         "Always Low Precision ((CV=0.5)",
+                                         "Precautionary Buffer"))+
+    scale_shape_discrete(
+      name = "Monitoring strategy",
+      labels=c("Always High Precision (CV=0.1)",
+               "Always Low Precision ((CV=0.5)",
+               "Precautionary Buffer"))+
     xlab("Maximum Fishing Effort pHMSY")+
-    ylab("Value Ratio: NPV/Cost")+
+    ylab("Value Ratio: NPV/Monitoring Cost")+
     labs(colour="Probability of tipping")+
     theme(strip.text = element_text(size = 10))+
     theme(strip.background = element_blank())+
     # theme(legend.position = c(.90,.90))+
     # theme(legend.title=element_blank())+
-    theme(axis.title.x= element_text(color= "black", size=20),
-          axis.title.y= element_text(color= "black", size=20))+
+    theme(axis.title.x= element_text(color= "black", size=14),
+          axis.title.y= element_text(color= "black", size=14))+
     theme(legend.text=element_text(size=10))+
     theme(legend.background = element_rect( 
       size=0.5, linetype ="solid"))+
-    theme(axis.text = element_text(size = 15))+
-    theme(legend.text=element_text(size=15))
+    theme(axis.text = element_text(size = 12))+
+    theme(legend.text=element_text(size=12))
   
-ggsave("output/figures/Buffer/buffer_cs_5.pdf",width=5,height=5)  
+ggsave("output/figures/Buffer/buffer_cs_5.pdf",width=7,height=5)  
 
   
   cv0.1<-

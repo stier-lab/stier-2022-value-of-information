@@ -58,7 +58,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
     #Bhat.vec[i]<-Byear*B.errors[i] old: only works with single cv  #should be i+1?
     
     #Sampling model where monitoring continues to increase even if crash happens  As added +1 to i so that 
-    #the error int eh second year is a funciton of the new biomass not the old 
+    #the error in the second year is a function of the new biomass not the old 
     Bhat.vec[i+1]<-ifelse(Bhat.vec[i]<B.crit,
                           B.vec[i+1]*B.errors.low[i],
                           B.vec[i+1]*B.errors.high[i])
