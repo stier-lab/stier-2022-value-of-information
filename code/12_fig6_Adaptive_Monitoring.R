@@ -8,7 +8,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #Number of Iterations 
-n.iters=1000
+n.iters=5000
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
 
@@ -16,8 +16,8 @@ process.seeds<-round(1000000*runif(n.iters),0)
 max.F= max.F
 B.start=100
 A=10
-years=20
-B.crit=.25*Bmsy
+years=50
+# B.crit=.25*Bmsy
 
 #Set up Monitoring Regimes to Loop Through
 cv <- c("fixedCV0.1","fixedCV0.5","PrecautionaryBufferCV","mean_PBCV")
@@ -31,7 +31,7 @@ phitab[2,3]<-0.5
 
 bcritvec<-c(0.25,0.5,1,1.25) #different thresholds for when more precise monitoring kicks in
 csvec<-c(1,5,10) #different costs of monitoring
-mfvec<-seq(0,2,by=0.01) #
+mfvec<-seq(0,2,by=0.05) #
 
 ###################################################Need to run and see how to melt right 
 #Set up Empty data Frame
@@ -76,7 +76,7 @@ for(c in 1:length(csvec)){
 save(edf,file=here("output/simulation",paste("precautionary_buffer",Sys.Date(),n.iters,".Rdata")))
 
 
-load("output/simulation/precautionary_buffer 2021-01-19 100 .Rdata")
+load("output/simulation/precautionary_buffer 2021-01-19 1000 .Rdata")
 
 
 ##Univariate Response
@@ -131,7 +131,7 @@ for(i in 1:length(csvec)){
   gsmooth<-ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
     geom_point(aes(colour=ptip,pch=cv))+
     geom_line(aes(colour=ptip))+
-    geom_smooth(aes(lty=cv,colour=ptip),se=F)+
+    geom_smooth(aes(lty=cv),colour="gray60",se=F)+
     theme_classic()+
     scale_colour_gradient(low="dodgerblue",high="red")+
     xlab("Maximum Fishing Effort")+
@@ -139,14 +139,38 @@ for(i in 1:length(csvec)){
     #$ facet_grid(.~cv)+
     ggtitle(paste("Cost Function Slope (cs) =",csvec[i]))
   
-  
   print(gsmooth)
+  
+  ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
+    geom_point(aes(colour=ptip,pch=cv))+
+    geom_line(aes(colour=ptip))+
+    geom_smooth(aes(lty=cv),colour="gray60",se=F)+
+    theme_pubr(legend="right")+
+    scale_colour_gradient(low="dodgerblue",high="red")+
+    xlab("Maximum Fishing Effort pHMSY")+
+    ylab("Value Ratio: NPV/Cost")+
+    labs(colour="Probability of tipping")+
+    theme(strip.text = element_text(size = 10))+
+    theme(strip.background = element_blank())+
+    # theme(legend.position = c(.90,.90))+
+    # theme(legend.title=element_blank())+
+    theme(axis.title.x= element_text(color= "black", size=20),
+          axis.title.y= element_text(color= "black", size=20))+
+    theme(legend.text=element_text(size=10))+
+    theme(legend.background = element_rect( 
+      size=0.5, linetype ="solid"))+
+    theme(axis.text = element_text(size = 15))+
+    theme(legend.text=element_text(size=15))
+  
+ggsave("output/figures/Buffer/buffer_cs_5.pdf",width=5,height=5)  
+
   
   cv0.1<-
   temp3b%>%
     filter(cv=="fixedCV0.1")
     
   line0.1<-predict(loess(mf~ratio,data=cv0.1))
+  stat_smooth(mf~ratio,data=cv0.1)
   
   cv0.5<-
     temp3b%>%
@@ -160,19 +184,39 @@ for(i in 1:length(csvec)){
   
   line0.1_0.5<-predict(loess(ratio~mf,data=cv0.1_0.5))
   
+  # plot(cm1,type="l",xlim=c(0,0.6),ylim=c(0,100),ylab="monitoring cost",xlab="monitoring precision")
+  # lines(cvec,cm5,type="l",col=2)
+  # lines(cvec,cm10,type="l",col=4)
+  # 
+  
   pred_df<-data.frame(line0.1,line0.5,line0.1_0.5)
   names(pred_df)<-c("High Monitoring","Low Monitoring","Precautionary Buffer")
   pred_df$mf<-cv0.5$mf
   
+  plot(pred_df$mf,pred_df$`High Monitoring`,type="l")
+  
   pred_df2<-pivot_longer(pred_df,!mf)
+  pred_df2<- arrange(pred_df2,name,mf)
   pred_df2$tip<-c(cv0.1$ptip,cv0.5$ptip,cv0.1_0.5$ptip)
   pred_df2$name<-as.factor(pred_df2$name)
   
   gsmooth2<-
   ggplot(pred_df2,aes(x=mf,y=value))+
-    geom_line(aes(group=name,colour=tip))
+    geom_line(aes(group=name,colour=tip))+
+    scale_colour_gradient(low="dodgerblue",high="red")
+    
     # facet_wrap(~name)
   print(gsmooth2)
+  
+  pred_smooth<-gs$data[[3]]
+  
+  gs<-ggplot_build(gsmooth)
+  ggplot(data=,aes(x=x,y=y,group=group))+
+    geom_line()
+  
+  #add colors
+  
+  
   
   
   # ggsave(paste("Biplot_NPV_Cost_Tip_nofacet.pdf","costfucntionslope=",csvec[i],".pdf"),gsmooth)
