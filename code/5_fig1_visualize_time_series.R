@@ -70,7 +70,7 @@ ggplot(data=visdf2,aes(x=Year,y=value))+
     strip.text.x = element_blank()
   )+
   annotate("text", label = "Overharvest", size = 4, x = 10, y = 35)+
-  theme(
+
 
 
 ggsave("output/figures/time_series/true_estimated_bimoass.pdf",width=7,height=4)

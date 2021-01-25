@@ -21,7 +21,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 
 # load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
-load("output/simulation/fig2_dz_acs_2020-12-15_1000.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_dz_acs_100yr2021-01-22_10.Rdata") #this is the original simulation. dataframe = ar
 
 
 df1 = melt(ar,varnames=names(dimnames(ar)))
@@ -37,18 +37,31 @@ df1w$pFmsy<-100*df1w$pFmsy
 # df1wb<-df1w%>%
 # slice(which(row_number() %% 5 == 1))
 
-gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,alpha=0.5,colour=pFmsy,group=pFmsy))+
-  geom_point()+
-  geom_line(aes(alpha=0.5))+
-  scale_colour_gradientn(colours = pal,name="Maximum Fishing Rate (%F_MSY)", guide = gc)+
-  xlab("% Time in Danger Zone (below A + K/2)") +
+# n=5
+# dfthin<- df1w[-seq(n, NROW(df1w), by = n),]
+
+
+gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy,group=pFmsy))+
+  geom_point(alpha=0.5)+
+  geom_line(alpha=0.8)+
+  scale_shape_discrete(name = "Monitoring Precision",
+                       labels = c("High precision", "Low precision"))+
+  scale_colour_gradientn(colours = pal,name=str_wrap("Maximum Harvest (%H_MSY)",20), guide = gc)+
+    xlab("% Time in Overharvested (<0.8Bmsy)") +
   ylab("Net Present Value") +
-  theme_pubr(legend="right")
-# annotate("segment", x = 87.5, y = 110, xend = 87.5, yend = 98,
-#          arrow = arrow(type = "closed", length = unit(0.02, "npc")))
+  theme_pubr(legend="right")+
+  theme(
+    axis.text.x=element_text(size=10),
+    axis.text.y=element_text(size=10),
+    axis.title = element_text(size = 14),
+    strip.background = element_blank(),
+    strip.text.x = element_blank()
+  )
 
 print(gg_abs_npv)
 #this looks as a function of time below a threshold /i.e.dangerzone and ROI
+
+ggsave("output/figures/ROI/ROI-1-25-2021.pdf",width=6,height=4)
 
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
@@ -75,171 +88,24 @@ gg_roi<-  ggplot(npv_ratio3,aes(npv_ratio3,x=t_near_tp,y=npv_ratio)) +
   plot_grid(gg_abs_npv,gg_roi,ncol=1)
   
 
-
-
-#####################################################################
-#####################################################################
-#Plots focused on time in danger zone and ROI 
-#####################################################################
-#####################################################################
-
-load("output/simulation/fig2_mcs_2020-11-16_300.Rdata") #this is the original simulation. dataframe = ar
-
-
-###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
-#1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
-
-
-Fig2c <- function(outputs = ar){
-  npv_ratio <- (outputs[,1, 1 ,3,] / outputs[,1,5,3,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  t_near_tp <- outputs[,9, 5 ,3,]
-  ptip <-outputs[,2, 5 ,3,]
+#another way to see this? 
   
-  t_near_tp <- melt(t_near_tp)
-  names(t_near_tp) <- c("pFmsy","B.start","time.in.dangerzone")
-  
-  npv_ratio <- melt(npv_ratio)
-  names(npv_ratio) <- c("pFmsy","B.start","roi")
-  
-  t_ptip <-melt(ptip)
-  names(t_ptip) <- c("pFmsy","B.start","ptip")
-  
-  
-  #npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
-  npv_ratio2 <- npv_ratio %>% 
-    left_join(t_near_tp,by = c('pFmsy','B.start'))
-  
-  npv_ratio3<- npv_ratio2 %>%
-    left_join(t_ptip,by=c('pFmsy','B.start'))
-  
-  # npv_ratio3$pFmsy<-as.factor(npv_ratio3$pFmsy)
-  
-  #npv_ratio2$prox <- -1*(npv_ratio2$B.start) # starting biomass
-  #npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
-  
-  timeplot2 <- npv_ratio3 %>%
-    filter(!is.na(roi)) %>%
-    filter(B.start>50) %>%
-    # filter(pFmsy %in% c(0.5))%>%
-    filter(ptip <0.25)%>%
-    ggplot(aes(x=time.in.dangerzone,y=roi,group=pFmsy)) +
+  ggplot(npv_ratio3,aes(npv_ratio3,x=pFmsy,y=npv_ratio)) +
     geom_point(aes(colour=pFmsy)) +
-    facet_wrap(~pFmsy, scales = "free_y") +
-    scale_colour_gradient(low="dodgerblue",high="firebrick",name="pFMSY") +
-    xlab("Time below (A + K/2) for CV=0.5") +
+    geom_smooth(se=F,color="black")+
+    # facet_wrap(~B.start, scales = "free_y") +
+    scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
+    xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
-    theme_pubr(legend="right")
-  timeplot2
-}
-
-Fig2c(outputs = ar)
+    theme_pubr(legend="right")+
+    geom_hline(yintercept=1,lty=2)
+  
 
 
 
 
 
 
-
-#heat map as function of years near threshold
-
-df1 = melt(ar,varnames=names(dimnames(ar)))
-colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
-df1w <-pivot_wider(df1,names_from = metric)%>%
-  filter(B.start ==70)
-
-#rescues relative to danger metric
-df1w$rescue_rel_risk <- df1w$prob_rescue/df1w$yrs.near.thresh1
-
-gg_tip<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=Prob.Cross.TP,colour=Prob.Cross.TP))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick",)+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-gg_danger<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-geom_tile(aes(fill=yrs.near.thresh1,colour=yrs.near.thresh1))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick",)+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-gg_NPV<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=NPV,colour=NPV))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-gg_rescue<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=rescue,colour=rescue))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-
-gg_rescue2<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=prob_rescue,colour=prob_rescue))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-
-gg_rescue_rel_risk<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=rescue_rel_risk,colour=rescue_rel_risk))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-
-
-gg_rescue_prob2<-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=prob_rescue2,colour=prob_rescue2))+
-  scale_fill_gradient(low="dodgerblue",high="firebrick")+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
-  facet_wrap(~A)+
-  theme_pubr(legend="right")
-
-
-plot_grid(gg_tip,gg_danger,gg_NPV,gg_rescue,gg_rescue2,gg_rescue_prob2,ncol=2)
-
-plot_grid(gg_tip,gg_NPV,gg_rescue_prob2,ncol=1)
-
-
-#just A=10
-load("output/simulation/fig2_rescue_acs_2020-11-30_500.Rdata") #this is the original simulation. dataframe = ar
-
-df1 = melt(ar,varnames=names(dimnames(ar)))
-colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
-df1w <-pivot_wider(df1,names_from = metric)%>%
-  filter(B.start ==70 & A == "A = 10")
-
-c("#7ACCD7", "#115896", "#7C6C65", "#4C4C53", "#BA2F00", "#21282F")
-
-ggplot(df1w,aes(x=CV,y=pFmsy))+
-  geom_tile(aes(fill=prob_rescue2,colour=prob_rescue2))+
-  scale_fill_gradient(low="#7ACCD7",high="#BA2F00")+
-  scale_colour_gradient(low="#7ACCD7",high="#BA2F00")+
-  xlab("CV of Monitoring")+
-  ylab("Havest Rate (pFmsy)")+
-  theme_pubr(legend="right")
 
 
 
@@ -256,7 +122,7 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
 #####################################################################
 
 
-load("output/simulation/fig2_mcs_2020-11-09_100.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_mcs_2021-01-22_10.Rdata") #this is the original simulation. dataframe = ar
 
 #melt down ar and look for what values might make sense 
 
@@ -325,13 +191,6 @@ ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
 
 
 
-
-
-
-
-
-
-
 #=========GRAVEYARD===================#
 
 # # get simulation outputs
@@ -371,4 +230,64 @@ ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
 # }
 # 
 # Fig2(outputs = ar)
+
+
+
+# #####################################################################
+# #####################################################################
+# #Plots focused on time in danger zone and ROI 
+# #####################################################################
+# #####################################################################
+# 
+# load("output/simulation/fig2_mcs_2020-11-16_300.Rdata") #this is the original simulation. dataframe = ar
+# 
+# 
+# ###This figure shows how  ROI changes as funciton of time below A+k/4 and thins out the data based on different starting values 
+# #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
+# 
+# 
+# Fig2c <- function(outputs = ar){
+#   npv_ratio <- (outputs[,1, 1 ,3,] / outputs[,1,5,3,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+#   t_near_tp <- outputs[,9, 5 ,3,]
+#   ptip <-outputs[,2, 5 ,3,]
+#   
+#   t_near_tp <- melt(t_near_tp)
+#   names(t_near_tp) <- c("pFmsy","B.start","time.in.dangerzone")
+#   
+#   npv_ratio <- melt(npv_ratio)
+#   names(npv_ratio) <- c("pFmsy","B.start","roi")
+#   
+#   t_ptip <-melt(ptip)
+#   names(t_ptip) <- c("pFmsy","B.start","ptip")
+#   
+#   
+#   #npv_ratio2 <- subset(npv_ratio,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
+#   npv_ratio2 <- npv_ratio %>% 
+#     left_join(t_near_tp,by = c('pFmsy','B.start'))
+#   
+#   npv_ratio3<- npv_ratio2 %>%
+#     left_join(t_ptip,by=c('pFmsy','B.start'))
+#   
+#   # npv_ratio3$pFmsy<-as.factor(npv_ratio3$pFmsy)
+#   
+#   #npv_ratio2$prox <- -1*(npv_ratio2$B.start) # starting biomass
+#   #npv_ratio2 <- subset(npv_ratio2,pFmsy %in% c(0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0))
+#   
+#   timeplot2 <- npv_ratio3 %>%
+#     filter(!is.na(roi)) %>%
+#     filter(B.start>50) %>%
+#     # filter(pFmsy %in% c(0.5))%>%
+#     filter(ptip <0.25)%>%
+#     ggplot(aes(x=time.in.dangerzone,y=roi,group=pFmsy)) +
+#     geom_point(aes(colour=pFmsy)) +
+#     facet_wrap(~pFmsy, scales = "free_y") +
+#     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pFMSY") +
+#     xlab("Time below (A + K/2) for CV=0.5") +
+#     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
+#     theme_pubr(legend="right")
+#   timeplot2
+# }
+# 
+# Fig2c(outputs = ar)
+# 
 
