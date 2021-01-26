@@ -6,7 +6,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 # load("output/simulation/fig2_dz_acs_50yr2021-01-22_5000.Rdata") #this is ignored on github will need to produce
 # load("output/simulation/fig2_rescue_acs_2020-11-30_500.Rdata")
-load("output/simulation/fig4_rescue_acs_2021-01-25_3000.Rdata") #this is ignored on github will need to produce
+load("output/simulation/fig4_rescue_acs_2021-01-25_50.Rdata") #this is ignored on github will need to produce
 
 
 ###Just the solo figure with prob_rescue2
@@ -14,23 +14,30 @@ load("output/simulation/fig4_rescue_acs_2021-01-25_3000.Rdata") #this is ignored
 df1 = melt(ar,varnames=names(dimnames(ar)))
 colnames(df1) = c("pFmsy","metric","CV","A","B.start","value")
 df1w <-pivot_wider(df1,names_from = metric)%>%
-  filter(B.start ==70 & A == "A = 10")
+  filter(B.start == 70 & A == "A = 10")
 
+#probability of rescue occurring when overharvest happeneds
+#this is problematic qualitatitvely because tipping happens a lot, so the scenarios
+#shown are ones where tipping didn't occur 
 
 ggplot(df1w,aes(x=CV,y=pFmsy))+
   geom_tile(aes(fill=prob_rescue2,colour=prob_rescue2))+
-  scale_fill_gradient(low="#7ACCD7",high="#BA2F00")+
-  scale_colour_gradient(low="#7ACCD7",high="#BA2F00")+
+  scale_fill_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Probability of Rescue",14))+
+  scale_colour_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Probability of Rescue",14))+
   xlab("Monitoring Precision")+
   ylab("Havest Rate (pHmsy)")+
   theme_pubr(legend="right")
 
-# 
-#   scale_colour_gradient(name = "Rescue Probability",
-#                       labels = c("High (20%)", "Low (1%)"))+
-#   scale_fill_gradient(name = "Risk Tolerance",
-#                     labels = c("High (20%)", "Low (1%)"))
- 
+
+#this is just the number of rescues out of times there was a dip
+
+ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=rescue,colour=rescue))+
+  scale_fill_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Rescues",14))+
+  scale_colour_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Rescues",14))+
+  xlab("Monitoring Precision")+
+  ylab("Havest Rate (pHmsy)")+
+  theme_pubr(legend="right")
 
 
 

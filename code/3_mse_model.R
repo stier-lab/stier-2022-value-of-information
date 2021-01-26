@@ -99,8 +99,8 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   threshold=0.8*Bmsy
   
   for(j in 1:length(B.vec)){
-    temp_mat[j+1,1]<-ifelse(B.vec[j+1]>threshold & B.vec[j]<threshold,1,0) # number of dangers 
-    temp_mat[j+1,2]<-ifelse(B.vec[j+1]<threshold & B.vec[j]>threshold,1,0) # number of rescues 
+    temp_mat[j+1,1]<-ifelse(B.vec[j+1]>threshold & B.vec[j]<threshold,1,0) # number of rescues 
+    temp_mat[j+1,2]<-ifelse(B.vec[j+1]<threshold & B.vec[j]>threshold,1,0) # number of dangers 
   }
   
   
@@ -113,13 +113,14 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   TP <- ifelse(B.vec[years]>A,0,1)
   TPBMSY<-ifelse(B.vec[years]>(0.25*Bmsy),0,1)
   phi.CV <-phi.CV
+  rescue <- colSums(temp_mat,na.rm=T)[1] #number of times recovered from overharvest 
   rescue_prob<- colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2]#fraction of times dipped into danger then reocviered
   
   
   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
   #moncost <-sum(cm/phi.CV,na.rm=T) #monitoring cost is the cm constatn (just a random number) divided by the cv. 
   #moncost<-sum(-10*cm*phi.CV+50,na.rm=T) #to show that adaptive monitoring is same price when linear
-  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue_prob=rescue_prob))
+  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue=rescue,rescue_prob=rescue_prob))
 }
 
 
@@ -127,30 +128,30 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
 #Test est.NPV function
 ####
 
-# source("code/2_model_parameters.R") # load base parameters
-# 
-# mf0.5<-max.F*0.5
-# mf1.3<-max.F*1.3
-# mf1.9<-max.F*1.9
-# phi.CV.low=phi.CV.high=0.5
-# A=10
-# B.start=75
-# years=50
-# 
-# t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
-# print(t)
-# 
-# 
-# plot(t$phi.CV[-1])
-# 
-# 
-# plot(t$B,type="l",xlim=c(0,51),ylim=c(0,150))
-# lines(t$Bhat,col=3,lty=2)
-# abline(h = A,col='red')
-# threshold = 0.8*Bmsy
-# abline(h = threshold,col='red',lty=2)
-# t$rescue_prob
+source("code/2_model_parameters.R") # load base parameters
 
+mf0.5<-max.F*0.5
+mf1.3<-max.F*1.3
+mf1.9<-max.F*1.9
+phi.CV.low=phi.CV.high=0.5
+A=10
+B.start=75
+years=50
+
+t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
+print(t)
+
+
+plot(t$phi.CV[-1])
+
+
+plot(t$B,type="l",xlim=c(0,51),ylim=c(0,150))
+lines(t$Bhat,col=3,lty=2)
+abline(h = A,col='red')
+threshold = 0.8*Bmsy
+abline(h = threshold,col='red',lty=2)
+t$rescue_prob
+t
 
 
 
