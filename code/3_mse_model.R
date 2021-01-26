@@ -113,7 +113,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   TP <- ifelse(B.vec[years]>A,0,1)
   TPBMSY<-ifelse(B.vec[years]>(0.25*Bmsy),0,1)
   phi.CV <-phi.CV
-  rescue_prob<- mean(colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2],na.rm=T)#fraction of times dipped into danger then reocviered
+  rescue_prob<- colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2]#fraction of times dipped into danger then reocviered
   
   
   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
@@ -122,30 +122,32 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue_prob=rescue_prob))
 }
 
-# 
-# ####
-# Test est.NPV function
-# ####
-# 
+
+####
+#Test est.NPV function
+####
+
 # source("code/2_model_parameters.R") # load base parameters
-#
+# 
 # mf0.5<-max.F*0.5
 # mf1.3<-max.F*1.3
 # mf1.9<-max.F*1.9
-# phi.CV.low=phi.CV.high=0.0
+# phi.CV.low=phi.CV.high=0.5
 # A=10
-# B.start=85
-#
-# t<-est.NPV(years,K,A,r,phi.CV.low=0.2,phi.CV.high=0.2,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
+# B.start=75
+# years=50
+# 
+# t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
 # print(t)
-#
-#
+# 
+# 
 # plot(t$phi.CV[-1])
-
-
-# plot(t$B,type="l",xlim=c(0,25),ylim=c(0,100))
+# 
+# 
+# plot(t$B,type="l",xlim=c(0,51),ylim=c(0,150))
+# lines(t$Bhat,col=3,lty=2)
 # abline(h = A,col='red')
-# threshold = K/2
+# threshold = 0.8*Bmsy
 # abline(h = threshold,col='red',lty=2)
 # t$rescue_prob
 
@@ -194,8 +196,9 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     
     thresh1[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.8*Bmsy) #2A?
     thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.8*Bmsy) 
-    rescue[i]  <- length(which(model.output$B <0.8*Bmsy & model.output$B>A & model.output$B>A))
-    rescue_prob[i] <- model.output$rescue_prob
+    rescue[i]  <- length(which(model.output$B <0.8*Bmsy & model.output$B>A)) #number of years ovharvested but not collapsed
+    rescue_prob[i] <- model.output$rescue_prob #probability of recovery whn dip
+    #could consider a weighted rescue prob that is based on whether collapse happened
    
     
     # rescue2[i] <- length
@@ -216,10 +219,10 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 
 
 
-# 
-# ##########################################################
+
+##########################################################
 # Test repeat.model2
-# ##########################################################
+##########################################################
 # 
 # start.B.list<-seq(20,100,by=1)
 # 
@@ -228,7 +231,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # phi.seeds<-round(1000000*runif(n.iters),0)
 # process.seeds<-round(1000000*runif(n.iters),0)
 # 
-# A=30
+# A=10
 # Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
 # B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
 # MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
@@ -243,7 +246,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # 
 # #not that ptip is very dependent upon the starting density
 # 
-# value = repeat.model2(n.iters,B.start=50,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
+# value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
 # return.value<-median(c(value[[1]]))
 # return.BB<-median(c(value[[2]]))
 # return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A
@@ -252,6 +255,9 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
 # return.B <-value[[6]]
 # return.cm<-value[[9]]
 # value
+# mean(value$rescue_prob,na.rm=T)
+
+
 
 
 

@@ -8,7 +8,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #pull output file
-load("output/simulation/risk and heatmaps 2021-01-22 5000 .Rdata") #this is ignored on github will need to produce
+load("output/simulation/safe-operating-space 2021-01-25 10 .Rdata") #this is ignored on github will need to produce
 
 #rearrange and label for plotting
 df1 = melt(ar1,varnames=names(dimnames(ar)))
@@ -47,25 +47,10 @@ names(df4) = c("20%","10%","5%","1%","pFmsy")
 df4 <- melt(df4,id.vars=c("pFmsy"))
 names(df4) <- c("pFmsy","PercentRisk","value")
 df4$PercentRisk <- factor(df4$PercentRisk, levels = c("20%","10%","5%","1%"))
-
-
-g_ptip = ggplot(df4,aes(x=pFmsy,y=value,group=PercentRisk))+
-  geom_line(aes(colour=PercentRisk,lty=PercentRisk))+
-  # geom_area(aes(fill=PercentRisk),alpha=0.5)+
-  xlab("Harvest Rate (pFmsy)")+
-  ylab("Max CV to Avoid Tipping point")+
-  theme_pubr(legend="right")+
-  scale_x_continuous(limits=c(0,2))+
-  scale_y_continuous(limits=c(0,0.6),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5,0.6))
-# scale_colour_Publication()
-# ggtitle("Risk to Avoid Allee TP")
-
-
-print(g_ptip) 
-
-
 df5<-df4%>%
   filter(PercentRisk == c("1%","20%"))
+
+#main pub fig
 
 ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
   geom_line(aes(colour=PercentRisk,lty=PercentRisk))+
@@ -83,6 +68,29 @@ ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
                     values=wes_palette("Zissou1", 2, type = "continuous"))+
   scale_linetype_discrete(name = "Risk Tolerance",
                           labels = c("High (20%)", "Low (1%)"))
+
+
+
+
+
+#figures for supplement of more risk profiles 
+
+g_ptip = ggplot(df4,aes(x=pFmsy,y=value,group=PercentRisk))+
+  geom_line(aes(colour=PercentRisk,lty=PercentRisk))+
+  # geom_area(aes(fill=PercentRisk),alpha=0.5)+
+  xlab("Harvest Rate (pFmsy)")+
+  ylab("Max CV to Avoid Tipping point")+
+  theme_pubr(legend="right")+
+  scale_x_continuous(limits=c(0,2))+
+  scale_y_continuous(limits=c(0,0.6),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5,0.6))
+# scale_colour_Publication()
+# ggtitle("Risk to Avoid Allee TP")
+
+
+print(g_ptip) 
+
+
+
 
   # scale_x_continuous(limits=c(0,2))+
   # scale_y_continuous(limits=c(0,0.6),breaks=c(0.0,0.1,0.2,0.3,0.4,0.5,0.6))
