@@ -74,6 +74,7 @@ ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
   ylab("Minimum monitoring precision to avoid threshold")+
   theme_pubr(legend="right")+
   ylim(0,0.65)+
+  # scale_fill_manual(values = alpha(c("#ff1212","#1212ff"), .25)) 
   scale_colour_manual(name = "Risk Tolerance",
                       labels = c("High (20%)", "Low (1%)"),
                       values=wes_palette("Zissou1", 2, type = "continuous"))+
