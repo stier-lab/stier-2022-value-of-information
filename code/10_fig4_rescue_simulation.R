@@ -64,7 +64,7 @@ for(b in 1:length(B.vec)){
         ar[i,9,j,a,b] <-median(value$thresh1) #k/2 threshold for danger
         ar[i,10,j,a,b]<-median(value$thresh2) #k/4 threshold for danger
         ar[i,11,j,a,b]<-median(value$rescue) #number of rescues
-        ar[i,12,j,a,b]<-length(which(value$rescue>0))/length(value$rescue) #probability of rescue #rescues
+        ar[i,12,j,a,b]<-length(which(value$rescue>0))/length(value$rescue) #probability of rescue /#rescues
         ar[i,13,j,a,b]<-mean(value$rescue_prob,na.rm=TRUE)  #prob rescue 2 ignoring nas
       }
     }
