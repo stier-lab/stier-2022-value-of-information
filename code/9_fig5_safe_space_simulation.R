@@ -11,7 +11,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 #Set Number of Iterations and Seeds for Phi and Process for each of the simulations below
 
-n.iters = 10
+n.iters = 5000
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -19,8 +19,8 @@ process.seeds<-round(1000000*runif(n.iters),0)
 years=50
 B.start <- 75 #starting biomass
 avec <- seq(10,30,by = 10) #vector of tipping points
-phivec <- seq(0.0,0.5,by=.1) #vector of accuracy
-FMSYvec <- seq(.1,2,by=0.1) #manipulating  max.F my a multiplier
+phivec <- seq(0.0,0.5,by=.01) #vector of accuracy
+FMSYvec <- seq(.1,2,by=0.01) #manipulating  max.F my a multiplier
 ar1 <- array(dim=c(length(FMSYvec),8,length(phivec),length(avec)))
 dimnames(ar1) = list(FMSYvec,c("NPV","Prob.Cross.TP","biomass","CumYield","SDBiomass","Ptip.MGMT","Fmsy","max.F.2"),phivec,paste("A =",avec))
 

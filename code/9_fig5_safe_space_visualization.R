@@ -8,7 +8,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #pull output file
-load("output/simulation/safe-operating-space 2021-01-25 10 .Rdata") #this is ignored on github will need to produce
+load("output/simulation/safe-operating-space 2021-01-27 5000 .Rdata") #this is ignored on github will need to produce
 
 #rearrange and label for plotting
 df1 = melt(ar1,varnames=names(dimnames(ar)))
@@ -47,6 +47,7 @@ names(df4) = c("20%","10%","5%","1%","pFmsy")
 df4 <- melt(df4,id.vars=c("pFmsy"))
 names(df4) <- c("pFmsy","PercentRisk","value")
 df4$PercentRisk <- factor(df4$PercentRisk, levels = c("20%","10%","5%","1%"))
+
 df5<-df4%>%
   filter(PercentRisk == c("1%","20%"))
 
@@ -58,7 +59,7 @@ ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
   xlab("Harvest Rate (pFmsy)")+
   ylab("Minimum monitoring precision to avoid threshold")+
   theme_pubr(legend="right")+
-  ylim(0,0.65)+
+  ylim(0,1)+
   # scale_fill_manual(values = alpha(c("#ff1212","#1212ff"), .25)) 
   scale_colour_manual(name = "Risk Tolerance",
                       labels = c("High (20%)", "Low (1%)"),
