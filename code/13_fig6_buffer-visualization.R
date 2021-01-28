@@ -45,7 +45,7 @@ ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
     geom_point(aes(colour=ptip,pch=cv),alpha=0.5,size=3)+
     geom_line(aes(colour=ptip))+
     theme_pubr(legend="right")+
-    scale_colour_gradient(low="#00AFBB",high="#FC4E07")+
+    scale_colour_gradient(low="#00AFBB",high="#FC4E07",guide = gc)+
     scale_shape_discrete(
       name = "Monitoring strategy",
       labels=c("High Precision (CV=0.1)",
@@ -75,7 +75,7 @@ ggplot(temp3b,aes(x=mf,y=ratio,group=cv))+
     theme(axis.text = element_text(size = 12))+
     theme(legend.text=element_text(size=12))
 
-  ggsave("output/figures/Buffer/buffer_cs_5.pdf",width=7,height=5)
+  ggsave("output/figures/buffer_cs_5.pdf",width=7,height=5)
 
 
   

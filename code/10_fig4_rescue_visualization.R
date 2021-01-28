@@ -39,6 +39,7 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
   ylab("Havest Rate (pHmsy)")+
   theme_pubr(legend="right")
 
+ggsave("output/figures/rescuemap.pdf",width=5,height=4)
 
 
 
