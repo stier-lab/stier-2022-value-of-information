@@ -54,12 +54,12 @@ df5<-df4%>%
 #main pub fig
 
 ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
-  geom_line(aes(colour=PercentRisk,lty=PercentRisk))+
-  geom_area(aes(fill=PercentRisk),alpha=0.2)+
+  # geom_line(aes(colour=PercentRisk,lty=PercentRisk))+
+  geom_area(aes(colour=PercentRisk,fill=PercentRisk),alpha=0.2,position="identity")+
   xlab("Harvest Rate (pFmsy)")+
   ylab("Minimum monitoring precision to avoid threshold")+
   theme_pubr(legend="right")+
-  ylim(0,1)+
+  ylim(0,0.6)+
   # scale_fill_manual(values = alpha(c("#ff1212","#1212ff"), .25)) 
   scale_colour_manual(name = "Risk Tolerance",
                       labels = c("High (20%)", "Low (1%)"),
@@ -69,6 +69,9 @@ ggplot(df5,aes(x=pFmsy,y=value,group=PercentRisk))+
                     values=wes_palette("Zissou1", 2, type = "continuous"))+
   scale_linetype_discrete(name = "Risk Tolerance",
                           labels = c("High (20%)", "Low (1%)"))
+  # stat_smooth(
+  #   geom = 'area', method = 'loess', span = 1/3,
+  #   alpha = 1/2,aes(fill=PercentRisk)) 
 
 
 
