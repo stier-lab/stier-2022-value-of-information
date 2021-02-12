@@ -15,6 +15,8 @@ library(wesanderson)
 library(stringr)
 
 pal <- wes_palette("Zissou1", 100, type = "continuous")
+pal2 <- wes_palette("Royal2", 100, type = "continuous")
+
 
 gc <- guide_colorbar(
   frame.colour = "black",

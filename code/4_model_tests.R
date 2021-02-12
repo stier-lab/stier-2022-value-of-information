@@ -82,11 +82,12 @@ df2$A <-as.numeric(as.character(df2$A))
 
 gga <- ggplot(df2,aes(x=time,y=Biomass,group=A))+
   geom_line(aes(colour=A))+
-  scale_colour_gradient(low="dodgerblue",high="firebrick")+
+  scale_colour_gradient(low="#669DB3FF",high="#FF4F58FF",name="Critical Threshold",guide= gc)+
   geom_hline(yintercept=0)+
   xlab("Biomass")+
   ylab("Change in Biomass Per Unit Time (dB/dt)")+
-  theme_pubr()+
+  theme_classic()+
+  # theme_pubr()+
   # theme_Publication()+
   theme(legend.position = "right")
 
@@ -119,7 +120,7 @@ Fo<- -(max.F*B.lim)/(Bmsy - B.lim)
 b<-max.F/(Bmsy - B.lim)
 
 
-bvec <-seq(0,100,by=1)
+bvec <-seq(1,100,by=1)
 yvec <-rep(0,length(bvec))
 
 for(i in 1:length(bvec)){
@@ -138,10 +139,11 @@ df3$prop <-df3$yvec/df3$bvec
 plot(df3$prop,type="l")
 
 ggb <- ggplot(df3,aes(x=bvec,y=prop))+
-  geom_line(colour="dodgerblue",size=1)+
+  geom_line(colour="black")+
   xlab("Standing Stock Biomass")+
   ylab("Proportion of Biomass Caught")+
-  theme_Publication()
+  theme_classic()
+  # theme_Publication()
 
 ggb
 
@@ -166,7 +168,7 @@ B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
 
 
 B.start <- 100
-avec<-seq(30,30,1)
+avec<-seq(10,10,1)
 phivec <- seq(0.1,0.5,by=.01)
 FMSYvec <- seq(.1,1,by=0.1)*max.F #manipulating FMSY max.F
 ar <- array(dim=c(length(FMSYvec),2,length(phivec),length(A)))
@@ -175,7 +177,7 @@ dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP"),phivec,paste("A =",avec))
 emat<-matrix(0,nrow=length(phivec),ncol=2)
 colnames(emat) <-c("Phi","dB")
 
-n.iters = 100
+n.iters = 1000
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -193,156 +195,171 @@ emat[,1] <-phivec
 df_cv <-data.frame(emat)
 
 ggc = ggplot(df_cv,aes(x=Phi,y=dB))+
-  geom_line(colour="dodgerblue",size=.5)+
+  # geom_line(colour="black")+
+  geom_smooth(colour="black",se=FALSE,size=0.5)+
   xlab("CV")+
   ylab("Median Sampling Error (abs(Biomass-Bhat))")+
-  theme_Publication()
+  theme_classic()
 
 # ggsave("sampling_error.pdf",width=5,height=2)
 ggc
-print(ggc)
+
+legend <- get_legend(gga)
+gga2<-gga+theme(legend.position='none')
+
+
+# Now plots are aligned vertically with the legend to the right
+all<-ggdraw(plot_grid(plot_grid(gga2, ggb, ggc,labels=c("A","B","C"), ncol=1, align='v'),
+                 plot_grid(NULL, legend, ncol=1),
+                 rel_widths=c(1, 0.2)))
+
+save_plot("output/figures/model_vis/model_vis.pdf",all,base_width=4,base_height=7)
+
+plot_grid(gga,ggb,ggc,ncol=1,
+          axis="l")
+          align="h",
+          rel_widths = c(1.3,1,1))
 
 
 ############
 #What does the function that TE look like accross a range of CVs 
 ###########
-
-years=10000
-phivec2 <- seq(0.1,0.5,by=.1)
-#phivec2 <-c(0.001,0.1,0.2,0.5)
-emat2 =matrix(nrow=length(seq(1:years)),ncol=length(phivec2))
-colnames(emat2) <-factor(phivec2)
-rownames(emat2) <-c(seq(1:years))
-
-
-for(j in seq(phivec2)){
-  B.errors<-exp(rnorm(years,mean=(0-phivec2[j]^2/2),sd=phivec2[j]))
-  emat2[,j] <-B.errors
-}
-
-df_cv2<- data.frame(melt(emat2))
-df_cv2$Var2 <-factor(df_cv2$Var2)
-
-ggplot(df_cv2,aes(x=value))+
-  geom_histogram(aes(fill=Var2,colour=Var2))+
-  facet_grid(Var2~.)+
-  theme_Publication()
-
-tapply(df_cv2$value,list(df_cv2$Var2),median)
-tapply(df_cv2$value,list(df_cv2$Var2),sd)
-
-
-#What does the function that TE look like accross a range of CVs 
-years=10000
-phivec <- seq(0.1,0.5,by=.1)
-emat2 =matrix(nrow=length(seq(1:years)),ncol=length(phivec))
-colnames(emat2) <-factor(phivec)
-rownames(emat2) <-c(seq(1:years))
-
-
-for(j in seq(phivec)){
-  B.errors<-rlnorm(years,mean=(phivec[j]),sd=phivec[j])
-  emat2[,j] <-B.errors
-}
-
-emat2[,1] <-phivec
-df_cv2<- data.frame(melt(emat2))
-df_cv2$Var2 <-factor(df_cv2$Var2)
-
-ggplot(df_cv2,aes(x=value))+
-  geom_histogram(aes(fill=Var2,colour=Var2))+
-  facet_grid(Var2~.,scales="free_y")+
-  theme_Publication()
-
-tapply(df_cv2$value,list(df_cv2$Var2),median)
+# 
+# years=100
+# phivec2 <- seq(0.1,0.5,by=.1)
+# #phivec2 <-c(0.001,0.1,0.2,0.5)
+# emat2 =matrix(nrow=length(seq(1:years)),ncol=length(phivec2))
+# colnames(emat2) <-factor(phivec2)
+# rownames(emat2) <-c(seq(1:years))
+# 
+# 
+# for(j in seq(phivec2)){
+#   B.errors<-exp(rnorm(years,mean=(0-phivec2[j]^2/2),sd=phivec2[j]))
+#   emat2[,j] <-B.errors
+# }
+# 
+# df_cv2<- data.frame(melt(emat2))
+# df_cv2$Var2 <-factor(df_cv2$X2)
+# 
+# ggplot(df_cv2,aes(x=value))+
+#   geom_histogram(aes(fill=Var2,colour=Var2))+
+#   facet_grid(Var2~.)+
+#   theme_Publication()
+# 
+# tapply(df_cv2$value,list(df_cv2$Var2),median)
+# tapply(df_cv2$value,list(df_cv2$Var2),sd)
+# 
+# 
+# #What does the function that TE look like accross a range of CVs 
+# years=10000
+# phivec <- seq(0.1,0.5,by=.1)
+# emat2 =matrix(nrow=length(seq(1:years)),ncol=length(phivec))
+# colnames(emat2) <-factor(phivec)
+# rownames(emat2) <-c(seq(1:years))
+# 
+# 
+# for(j in seq(phivec)){
+#   B.errors<-rlnorm(years,mean=(phivec[j]),sd=phivec[j])
+#   emat2[,j] <-B.errors
+# }
+# 
+# emat2[,1] <-phivec
+# df_cv2<- data.frame(melt(emat2))
+# df_cv2$Var2 <-factor(df_cv2$X2)
+# 
+# ggplot(df_cv2,aes(x=value))+
+#   geom_histogram(aes(fill=Var2,colour=Var2))+
+#   facet_grid(Var2~.,scales="free_y")+
+#   theme_Publication()
+# 
+# tapply(df_cv2$value,list(df_cv2$Var2),median)
 
 
 #############################################################
 ###Example data output of Yield, Biomass, Bhat for two different CVs
 #############################################################
 
-source("ModelParameters_v1.R") # base parameters
-rm(.Random.seed)
-phi.seeds<-round(1000000*runif(n.iters),0)
-process.seeds<-round(1000000*runif(n.iters),0)
+# source("ModelParameters_v1.R") # base parameters
+# rm(.Random.seed)
+# phi.seeds<-round(1000000*runif(n.iters),0)
+# process.seeds<-round(1000000*runif(n.iters),0)
+# 
+# B.vec <- seq(50,100, by = 50)
+# phivec <- seq(0.1,0.5,by=.1)
+# 
+# 
+# ts_ar <- array(dim=c(length(seq(1:years)),3,length(phivec),length(B.vec)))
+# dimnames(ts_ar) = list(seq(1:years),
+#                        c("Biomass","Yield","Bhat"),
+#                        phivec,
+#                        B.vec
+# ) 
+# 
+# 
+# for(b in seq(B.vec)){
+#   for(j in seq(phivec)){
+#     
+#     phi.CV.low=phi.CV.high=phivec[j]
+#     m <- est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start=B.vec[b],B.crit,B.lim,max.F,phi.CV.seed,process.noise.seed,c)
+#     
+#     ts_ar[,1,j,b] <- round(m$B[-21],1)
+#     ts_ar[,2,j,b] <- round(m$Y,1)
+#     ts_ar[,3,j,b] <- round(m$Bhat[-1],1)
+#   }
+# }
+# 
+# 
+# m1 <- melt(ts_ar)
+# names(m1) <-c("time","group", "CV","SSB","Response")
+# m1$CV2 = factor(m1$CV)
+# m1$CV = round(m1$CV,1)
+# 
+# bdf <- rbind(subset(m1,group=="Biomass" & CV == c(0.1)),subset(m1,group=="Biomass" & CV == c(0.5)))
+# bhatdf <-  rbind(subset(m1,group=="Bhat" & CV == c(0.1)),subset(m1,group=="Bhat" & CV == c(0.5)))
+# ydf <-  rbind(subset(m1,group=="Yield" & CV == c(0.1)),subset(m1,group=="Yield" & CV == c(0.5)))
+# 
+# df_all<- rbind(bdf,bhatdf,ydf)
+# df_100<- subset(df_all,SSB==100)
+# df_100$ttt <-paste(df_100[,2],df_100[,6])
+# df_100$group2 <-c(rep("Biomass",80),
+#                   rep("Yield",40))
+# df_100$group3 <-c(rep("Actual",40),
+#                   rep("Estimated",40),
+#                   rep("Actual",40))
+# 
+# 
+# ggd = ggplot(df_100,aes(x=time,y=Response,group=ttt))+
+#   geom_line(aes(colour=group2),size=.5)+
+#   facet_grid(.~CV2,scales = "free_y")+
+#   xlab("Time")+
+#   ylab("Biomass of Fish")+
+#   theme_Publication()
+# 
+# print(ggd)
+# 
+# df_b<-subset(df_100,group2=="Biomass")
+# 
+# ggplot(df_b,aes(x=time,y=Response,group=ttt))+
+#   geom_line(aes(colour=CV2),size=.5)+
+#   facet_grid(.~CV2,scales = "free_y")+
+#   geom_hline(yintercept=B.lim)+
+#   scale_y_continuous(limits=c(0,300))+
+#   xlab("Time")+
+#   ylab("Biomass of Fish")+
+#   theme_Publication()
+# 
+# df_100b<-subset(df_100,CV==0.1)
+# 
+# ggplot(df_100b,aes(x=time,y=Response,group=ttt))+
+#   geom_line(aes(colour=group2),size=.5)+
+#   facet_wrap(~group2,scales = "free_y",ncol=1)+
+#   geom_hline(yintercept=B.lim)+
+#   geom_hline(yintercept=A,lty=2)+
+#   xlab("Time")+
+#   ylab("Biomass of Fish")+
+#   theme_Publication()
+# 
+# ggsave("assessment model.pdf",width=5,height=2)
 
-B.vec <- seq(50,100, by = 50)
-phivec <- seq(0.1,0.5,by=.1)
-
-
-ts_ar <- array(dim=c(length(seq(1:years)),3,length(phivec),length(B.vec)))
-dimnames(ts_ar) = list(seq(1:years),
-                       c("Biomass","Yield","Bhat"),
-                       phivec,
-                       B.vec
-) 
-
-
-for(b in seq(B.vec)){
-  for(j in seq(phivec)){
-    
-    phi.CV.low=phi.CV.high=phivec[j]
-    m <- est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start=B.vec[b],B.crit,B.lim,max.F,phi.CV.seed,process.noise.seed,c)
-    
-    ts_ar[,1,j,b] <- round(m$B[-21],1)
-    ts_ar[,2,j,b] <- round(m$Y,1)
-    ts_ar[,3,j,b] <- round(m$Bhat[-1],1)
-  }
-}
-
-
-m1 <- melt(ts_ar)
-names(m1) <-c("time","group", "CV","SSB","Response")
-m1$CV2 = factor(m1$CV)
-m1$CV = round(m1$CV,1)
-
-bdf <- rbind(subset(m1,group=="Biomass" & CV == c(0.1)),subset(m1,group=="Biomass" & CV == c(0.5)))
-bhatdf <-  rbind(subset(m1,group=="Bhat" & CV == c(0.1)),subset(m1,group=="Bhat" & CV == c(0.5)))
-ydf <-  rbind(subset(m1,group=="Yield" & CV == c(0.1)),subset(m1,group=="Yield" & CV == c(0.5)))
-
-df_all<- rbind(bdf,bhatdf,ydf)
-df_100<- subset(df_all,SSB==100)
-df_100$ttt <-paste(df_100[,2],df_100[,6])
-df_100$group2 <-c(rep("Biomass",80),
-                  rep("Yield",40))
-df_100$group3 <-c(rep("Actual",40),
-                  rep("Estimated",40),
-                  rep("Actual",40))
-
-
-ggd = ggplot(df_100,aes(x=time,y=Response,group=ttt))+
-  geom_line(aes(colour=group2,lty=group3),size=.5)+
-  facet_grid(.~CV2,scales = "free_y")+
-  xlab("Time")+
-  ylab("Biomass of Fish")+
-  theme_Publication()
-
-print(ggd)
-
-df_b<-subset(df_100,group2=="Biomass")
-
-ggplot(df_b,aes(x=time,y=Response,group=ttt))+
-  geom_line(aes(colour=CV2,lty=group3),size=.5)+
-  facet_grid(.~CV2,scales = "free_y")+
-  geom_hline(yintercept=B.lim)+
-  scale_y_continuous(limits=c(0,300))+
-  xlab("Time")+
-  ylab("Biomass of Fish")+
-  theme_Publication()
-
-df_100b<-subset(df_100,CV==0.1)
-
-ggplot(df_100b,aes(x=time,y=Response,group=ttt))+
-  geom_line(aes(colour=group2,lty=group3),size=.5)+
-  facet_wrap(~group2,scales = "free_y",ncol=1)+
-  geom_hline(yintercept=B.lim)+
-  geom_hline(yintercept=A,lty=2)+
-  xlab("Time")+
-  ylab("Biomass of Fish")+
-  theme_Publication()
-
-ggsave("assessment model.pdf",width=5,height=2)
-
-multiplot(gga,ggb,ggc,ggd,cols=2)
-
+# multiplot(gga,ggb,ggc,ggd,cols=2)
 

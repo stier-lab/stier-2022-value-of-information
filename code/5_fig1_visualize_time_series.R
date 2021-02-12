@@ -14,15 +14,17 @@ p = 10 #price per unit biomass
 c = 200 # cost to achieve F
 
 
-Bmsy<- 70
-MSY<-25
-K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A)
-r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
-Fmsy<-MSY/Bmsy
-max.F<-Fmsy
-B.lim<-20 # lower biomass limit for harvest control rule
+# Bmsy<- 70
+# MSY<-25
+# K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A)
+# r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K))
+# Fmsy<-MSY/Bmsy
+# max.F<-Fmsy
+# B.lim<-20 # lower biomass limit for harvest control rule
 
-B.start<-61
+B.start<-50
+max.F=2*Fmsy
+
 model.output.lowCV<-est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
 model.output.highCV<-est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
 
@@ -64,12 +66,12 @@ ggplot(data=visdf2,aes(x=Year,y=value))+
     axis.text.x=element_text(size=10),
     axis.text.y=element_text(size=10),
     axis.title = element_text(size = 14))+
-  annotate("text", label = "Overharvest", size = 4, x = 10, y = 35)+
+  annotate("text", label = "Danger Zone", size = 4, x = 10, y = 35)+
   theme(
     strip.background = element_blank(),
     strip.text.x = element_blank()
   )+
-  annotate("text", label = "Overharvest", size = 4, x = 10, y = 35)+
+  annotate("text", label = "Danger Zone", size = 4, x = 10, y = 35)
 
 
 

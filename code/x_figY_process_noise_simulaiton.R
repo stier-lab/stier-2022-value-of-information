@@ -7,7 +7,7 @@ source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
 #Set up iterations and vector\s of params to explore
-n.iters=50
+n.iters=500
 procnoisevec <- seq(0,2,by=0.1)
 phivec <- seq(0.1,0.5,by=0.05) #uncertainty cv
 

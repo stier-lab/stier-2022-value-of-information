@@ -4,7 +4,7 @@ source("code/0_libraries.R") #load packages that are relevant
 source("code/2_model_parameters.R") # base parameters
 source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat model "repeat.model2"
 
-# load("output/simulation/fig2_dz_acs_50yr2021-01-22_5000.Rdata") #this is ignored on github will need to produce
+# load("output/simulation/fig2_dz_acs_50yr2021-01-22_5000.Rdata") 
 # load("output/simulation/fig2_rescue_acs_2020-11-30_500.Rdata")
 load("output/simulation/fig4_rescue_acs_2021-01-26_5000.Rdata") #this is ignored on github will need to produce
 

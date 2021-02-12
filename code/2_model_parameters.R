@@ -1,7 +1,7 @@
 # parameterize model duration and economics
 
-years <- 20 #time of simulation
-B.start <- 100 #starting biomass
+years <- 50 #time of simulation
+B.start <- 75 #starting biomass
 delta <- 0.05 # discount rate
 process.noise <- 0 #temporally uncorrelated variance (sd) in little r 
 
