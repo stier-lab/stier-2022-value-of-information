@@ -57,7 +57,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
     # SAMPLING MODEL
     #Bhat.vec[i]<-Byear*B.errors[i] old: only works with single cv  #should be i+1?
     
-    #Sampling model where monitoring continues to increase even if crash happens  As added +1 to i so that 
+    #Sampling model where monitoring continues to increase even if crash happensAs added +1 to i so that 
     #the error in the second year is a function of the new biomass not the old 
     Bhat.vec[i+1]<-ifelse(Bhat.vec[i]<B.crit,
                           B.vec[i+1]*B.errors.low[i],
@@ -75,7 +75,7 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
                           phi.CV.low,
                           phi.CV.high)
     
-    #an alternative "adaptive"S model would be to have phi.CV be a more dynamic/continous function of Bhat relative to B.crit. e.g. CV monitoring expoentially decreases as Bhat decreases
+    #an alternative "adaptive" monitoring model would be to have phi.CV be a more dynamic/continuous function of Bhat relative to B.crit. e.g. CV monitoring expoentially decreases as Bhat decreases
     #coding it this way would ber cool but would require some retooling because in this MSE the CVs are generated before the run and then pulled at each time step. 
     #or maybe an uglier way of doing that woudl be to have a more complicated if stmt to have categories of % greater that B.crit, tho that'd be a little crude
     
@@ -87,9 +87,6 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
     #start simulation with set initial deviation based on initial value 
     #Bhat.vec[1] <- ifelse(B.start>B.crit,sample(B.errors.high,1)*B.start,sample(B.errors.low,1)*B.start) 
    
-  
-  
-    
      
   }
   
@@ -115,7 +112,6 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   phi.CV <-phi.CV
   rescue <- colSums(temp_mat,na.rm=T)[1] #number of times recovered from overharvest 
   rescue_prob<- colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2]#fraction of times dipped into danger then reocviered
-  
   
   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
   #moncost <-sum(cm/phi.CV,na.rm=T) #monitoring cost is the cm constatn (just a random number) divided by the cv. 

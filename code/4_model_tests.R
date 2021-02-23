@@ -103,7 +103,7 @@ ggsave("output/figures/dbdt.pdf",width=10,height=5)
 years = 20 #time of simulation
 delta<-.05 # discount rate
 process.noise = 0 #temporally uncorrelated variance (sd) in little r 
-p = 10 #price per unit biomass
+p = 10 #price per unit biomassFmsy
 c=200 # cost to achieve F
 
 # parameterize the model based on A,BMSY and MSY
@@ -113,7 +113,8 @@ MSY<-25 # MSY
 K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A) #Carrying Capacity of Focal population (derived by TE in matlab)
 r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)) #population growth rate 
 Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
-max.F<-Fmsy #maximum fishing defined as Fmsy
+# max.F<-Fmsy #maximum fishing defined as Fmsy
+max.F=2*Fmsy
 B.lim<-max(A,20) # lower biomass limit for harvest control rule
 
 Fo<- -(max.F*B.lim)/(Bmsy - B.lim)
