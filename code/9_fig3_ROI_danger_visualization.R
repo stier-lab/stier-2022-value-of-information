@@ -21,7 +21,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 
 
 # load("output/simulation/fig2_dz_acs_2020-11-30_300.Rdata") #this is the original simulation. dataframe = ar
-load("output/simulation/fig2_dz_acs_100yr2021-01-22_10.Rdata") #this is the original simulation. dataframe = ar
+load("output/simulation/fig2_dz_acs_50yr2021-01-22_5000.Rdata") #this is the original simulation. dataframe = ar
 
 
 df1 = melt(ar,varnames=names(dimnames(ar)))
@@ -65,126 +65,126 @@ ggsave("output/figures/ROI/ROI-1-25-2021.pdf",width=6,height=4)
 
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start
-
-outputs<-ar
-
-  npv_ratio <- (outputs[,1, 1 ,1,] / outputs[,1,5,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
-  t_near_tp <- outputs[,9, 5 ,1,] #time spent near tipping point at cv=0.5
-  ptip <-outputs[,2, 5 ,1,]
-  pFmsy<-as.numeric(names(ptip))
-  npv_ratio3 <- data.frame(t_near_tp,ptip,npv_ratio,pFmsy)
-  
-gg_roi<-  ggplot(npv_ratio3,aes(npv_ratio3,x=t_near_tp,y=npv_ratio)) +
-    geom_point(aes(colour=pFmsy)) +
-    geom_smooth(se=F,color="black")+
-    # facet_wrap(~B.start, scales = "free_y") +
-    scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
-    xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
-    ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
-    theme_pubr(legend="right")+
-    geom_hline(yintercept=1,lty=2)
-  
-
-  plot_grid(gg_abs_npv,gg_roi,ncol=1)
-  
-
-#another way to see this? 
-  
-  ggplot(npv_ratio3,aes(npv_ratio3,x=pFmsy,y=npv_ratio)) +
-    geom_point(aes(colour=pFmsy)) +
-    geom_smooth(se=F,color="black")+
-    # facet_wrap(~B.start, scales = "free_y") +
-    scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
-    xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
-    ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
-    theme_pubr(legend="right")+
-    geom_hline(yintercept=1,lty=2)
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#####################################################################
-#####################################################################
-#Plos focused on NPV as a function of starting biomass
-#####################################################################
-#####################################################################
-
-
-load("output/simulation/fig2_mcs_2021-01-22_10.Rdata") #this is the original simulation. dataframe = ar
-
-#melt down ar and look for what values might make sense 
-
-sim_out<-melt(ar)
-colnames(sim_out)<-c("maxF","response","cv","A","b.start","value")
-
-atab10<-filter(sim_out,response == "NPV" & A=="A = 10")
-atab20<-filter(sim_out,response == "Prob.Cross.TP" & A=="A = 20")
-atab30<-filter(sim_out,response == "NPV" & A=="A = 30")
-
-ggplot(atab10,aes(x=b.start,y=value,colour=maxF,group=maxF))+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~cv)+
-  geom_vline(xintercept=10)+
-  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
-  theme_classic()
-
-ggplot(atab30,aes(x=b.start,y=value,colour=maxF,group=maxF))+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~cv)+
-  geom_vline(xintercept=30)+
-  scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
-  theme_classic()+
-  ylab("NPV")
-
-
-compare_NPV <- full_join(atab10,atab30) %>%
-  filter(cv %in% c(0.1,0.5))%>%
-  filter(maxF %in% c(0.1,0.9,1.9))
-
-compare_NPV$cv <- as.factor(compare_NPV$cv)
-
-ggplot(compare_NPV,aes(x=b.start,y=value,colour=cv,shape=A,group=cv))+
-  geom_point()+
-  geom_line()+
-  facet_grid(maxF~A)+
-  theme_pubr()+
-  ylab("NPV")
-
-
-# try plotting out data ROI-dangerzone
-
-atab10<-
-  sim_out%>%
-  filter(response %in% c("yrs.near.thresh1","NPV","Prob.Cross.TP")  & A %in% c("A = 10","A = 30"))%>%
-  pivot_wider(names_from = response,values_from=value)%>%
-  filter(cv %in% c(0.1,0.5))%>%
-  filter(Prob.Cross.TP<0.75)%>%
-  # pivot_wider(names_from = cv,values_from = NPV,names_prefix="NPVCV")%>% 
-  # pivot_longer(cols = c('NPVCV0.1','NPVCV0.5')) %>% drop_na() %>% pivot_wider()%>%
-  # mutate(ROI=NPVCV0.1/NPVCV0.5)%>%
-  filter(b.start>10)
-
-ggplot(atab10,aes(x=yrs.near.thresh1,y=ROI,colour=maxF))+
-  geom_point()
-
-atab10$cv<-as.factor(atab10$cv)
-
-ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
-  geom_line()
+# 
+# outputs<-ar
+# 
+#   npv_ratio <- (outputs[,1, 1 ,1,] / outputs[,1,5,1,])  # ROI = NPV(CV=0.1)/NPV(CV=0.5)
+#   t_near_tp <- outputs[,9, 5 ,1,] #time spent near tipping point at cv=0.5
+#   ptip <-outputs[,2, 5 ,1,]
+#   pFmsy<-as.numeric(names(ptip))
+#   npv_ratio3 <- data.frame(t_near_tp,ptip,npv_ratio,pFmsy)
+#   
+# gg_roi<-  ggplot(npv_ratio3,aes(npv_ratio3,x=t_near_tp,y=npv_ratio)) +
+#     geom_point(aes(colour=pFmsy)) +
+#     geom_smooth(se=F,color="black")+
+#     # facet_wrap(~B.start, scales = "free_y") +
+#     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
+#     xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
+#     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
+#     theme_pubr(legend="right")+
+#     geom_hline(yintercept=1,lty=2)
+#   
+# 
+#   plot_grid(gg_abs_npv,gg_roi,ncol=1)
+#   
+# 
+# #another way to see this? 
+#   
+#   ggplot(npv_ratio3,aes(npv_ratio3,x=pFmsy,y=npv_ratio)) +
+#     geom_point(aes(colour=pFmsy)) +
+#     geom_smooth(se=F,color="black")+
+#     # facet_wrap(~B.start, scales = "free_y") +
+#     scale_colour_gradient(low="dodgerblue",high="firebrick",name="pHmsy") +
+#     xlab("%Time in Danger Zone (below A + K/2) for CV=0.5") +
+#     ylab("Return on Investment (NPV(CV.1) / NPV(CV.5)") +
+#     theme_pubr(legend="right")+
+#     geom_hline(yintercept=1,lty=2)
+#   
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# #####################################################################
+# #####################################################################
+# #Plos focused on NPV as a function of starting biomass
+# #####################################################################
+# #####################################################################
+# 
+# 
+# load("output/simulation/fig2_mcs_2021-01-22_10.Rdata") #this is the original simulation. dataframe = ar
+# 
+# #melt down ar and look for what values might make sense 
+# 
+# sim_out<-melt(ar)
+# colnames(sim_out)<-c("maxF","response","cv","A","b.start","value")
+# 
+# atab10<-filter(sim_out,response == "NPV" & A=="A = 10")
+# atab20<-filter(sim_out,response == "Prob.Cross.TP" & A=="A = 20")
+# atab30<-filter(sim_out,response == "NPV" & A=="A = 30")
+# 
+# ggplot(atab10,aes(x=b.start,y=value,colour=maxF,group=maxF))+
+#   geom_point()+
+#   geom_line()+
+#   facet_wrap(~cv)+
+#   geom_vline(xintercept=10)+
+#   scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
+#   theme_classic()
+# 
+# ggplot(atab30,aes(x=b.start,y=value,colour=maxF,group=maxF))+
+#   geom_point()+
+#   geom_line()+
+#   facet_wrap(~cv)+
+#   geom_vline(xintercept=30)+
+#   scale_colour_gradient2(low="darkblue",midpoint=1,high="red",mid="darkgray")+
+#   theme_classic()+
+#   ylab("NPV")
+# 
+# 
+# compare_NPV <- full_join(atab10,atab30) %>%
+#   filter(cv %in% c(0.1,0.5))%>%
+#   filter(maxF %in% c(0.1,0.9,1.9))
+# 
+# compare_NPV$cv <- as.factor(compare_NPV$cv)
+# 
+# ggplot(compare_NPV,aes(x=b.start,y=value,colour=cv,shape=A,group=cv))+
+#   geom_point()+
+#   geom_line()+
+#   facet_grid(maxF~A)+
+#   theme_pubr()+
+#   ylab("NPV")
+# 
+# 
+# # try plotting out data ROI-dangerzone
+# 
+# atab10<-
+#   sim_out%>%
+#   filter(response %in% c("yrs.near.thresh1","NPV","Prob.Cross.TP")  & A %in% c("A = 10","A = 30"))%>%
+#   pivot_wider(names_from = response,values_from=value)%>%
+#   filter(cv %in% c(0.1,0.5))%>%
+#   filter(Prob.Cross.TP<0.75)%>%
+#   # pivot_wider(names_from = cv,values_from = NPV,names_prefix="NPVCV")%>% 
+#   # pivot_longer(cols = c('NPVCV0.1','NPVCV0.5')) %>% drop_na() %>% pivot_wider()%>%
+#   # mutate(ROI=NPVCV0.1/NPVCV0.5)%>%
+#   filter(b.start>10)
+# 
+# ggplot(atab10,aes(x=yrs.near.thresh1,y=ROI,colour=maxF))+
+#   geom_point()
+# 
+# atab10$cv<-as.factor(atab10$cv)
+# 
+# ggplot(atab10,aes(x=yrs.near.thresh1,y=NPV,colour=maxF,group=b.start))+
+#   geom_line()
 
 
 

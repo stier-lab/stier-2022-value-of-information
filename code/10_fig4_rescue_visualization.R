@@ -35,7 +35,7 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
   geom_tile(aes(fill=rescue,colour=rescue))+
   scale_fill_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Rescues",14))+
   scale_colour_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("Rescues",14))+
-  xlab("Monitoring Precision")+
+  xlab("Monitoring Error")+
   ylab("Havest Rate (pHmsy)")+
   theme_pubr(legend="right")
 

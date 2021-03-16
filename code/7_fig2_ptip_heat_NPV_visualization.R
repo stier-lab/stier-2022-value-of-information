@@ -10,7 +10,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 load("output/simulation/risk and heatmaps 2021-01-22 5000 .Rdata") #this is ignored on github will need to produce
 
 #rearrange and label for plotting
-df1 = melt(ar,varnames=names(dimnames(ar)))
+df1 = melt(ar1,varnames=names(dimnames(ar)))
 colnames(df1) = c("pFmsy","metric","CV","A","value")
 
 df1 = reshape(df1,

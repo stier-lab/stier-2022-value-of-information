@@ -22,8 +22,8 @@ c = 200 # cost to achieve F
 # max.F<-Fmsy
 # B.lim<-20 # lower biomass limit for harvest control rule
 
-B.start<-50
-max.F=2*Fmsy
+B.start<-75
+max.F=1*Fmsy
 
 model.output.lowCV<-est.NPV(years,K,A,r,phi.CV.low=0.1,phi.CV.high=0.1,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
 model.output.highCV<-est.NPV(years,K,A,r,phi.CV.low=0.5,phi.CV.high=0.5,delta,process.noise,p,B.start,B.lim,B.crit,max.F,phi.CV.seed,process.noise.seed,c)
@@ -75,7 +75,7 @@ ggplot(data=visdf2,aes(x=Year,y=value))+
 
 
 
-ggsave("output/figures/time_series/true_estimated_bimoass.pdf",width=7,height=4)
+ggsave("output/figures/time_series/true_estimated_bimoass_bstart75_fmsy.pdf",width=7,height=4)
 
 par(mfrow=c(2,2),las=1,mai=c(1,1.0,0.5,0.5))
 plot(1:50,model.output.lowCV$Y,type="l",lwd=2,col="red",ylim=c(0,100),xlab="years",ylab="catch or biomass",yaxs="i")
