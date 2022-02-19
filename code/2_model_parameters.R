@@ -24,7 +24,7 @@ r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)) # population growth rate
 
 Fmsy <- MSY/Bmsy # Fishing mortality that produces MSY
 max.F <- Fmsy # maximum fishing defined as Fmsy *****double check an older version of this 
-B.lim <- max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
+B.lim <- Bmsy #max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
 B.crit <- 50 
 
 phi.CV.low <- 0.1 #low cv associated with high montioring investment

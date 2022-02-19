@@ -114,8 +114,8 @@ K<-(3*Bmsy^2 - 2*A*Bmsy)/( 2*Bmsy-A) #Carrying Capacity of Focal population (der
 r<-MSY/(Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K)) #population growth rate 
 Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
 # max.F<-Fmsy #maximum fishing defined as Fmsy
-max.F=2*Fmsy
-B.lim<-max(A,20) # lower biomass limit for harvest control rule
+max.F=Fmsy
+B.lim<- Bmsy#max(A,20) # lower biomass limit for harvest control rule
 
 Fo<- -(max.F*B.lim)/(Bmsy - B.lim)
 b<-max.F/(Bmsy - B.lim)
@@ -143,8 +143,9 @@ ggb <- ggplot(df3,aes(x=bvec,y=prop))+
   geom_line(colour="black")+
   xlab("Standing Stock Biomass")+
   ylab("Proportion of Biomass Caught")+
-  theme_classic()
-  # theme_Publication()
+  ylim(0,0.5)+
+  # theme_classic()
+  theme_Publication()
 
 ggb
 

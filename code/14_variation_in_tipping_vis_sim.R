@@ -7,7 +7,7 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 #set parameter range for surface of simulated parameters
 years = 50
 B.vec <-c(70)#seq(50,100, by = 10) #MCS: used to be by 5
-avec <- c(10,20,30) #biomass at which allee effect occurs
+avec <- c(0,10,20,30) #biomass at which allee effect occurs
 phivec <- seq(0.1,0.5,by = 0.1) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
 FMSYvec <- seq(.1,2,by = 0.2) #manipulating FMSY max.F
 
@@ -19,7 +19,7 @@ dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 400
+n.iters = 200
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -39,7 +39,7 @@ for(b in 1:length(B.vec)){
         #calculate maxF
         A = avec[a]
         Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
-        B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule 
+        B.lim<-#0.25*Bmsy#Bmsy#max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
         MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
         Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
         max.F.2=FMSYvec[i]*Fmsy
