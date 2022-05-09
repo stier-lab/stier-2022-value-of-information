@@ -42,7 +42,7 @@ df1w$pFmsy<-100*df1w$pFmsy
 
 
 gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy,group=pFmsy))+
-  geom_point(alpha=0.5)+
+  geom_point(alpha=.8,size=3)+
   geom_line(alpha=0.8)+
   scale_shape_discrete(name = "Monitoring Precision",
                        labels = c("High precision", "Low precision"))+
@@ -61,7 +61,7 @@ gg_abs_npv <-ggplot(df1w,aes(x=yrs.near.thresh1,y=NPV,shape=CV,colour=pFmsy,grou
 print(gg_abs_npv)
 #this looks as a function of time below a threshold /i.e.dangerzone and ROI
 
-ggsave("output/figures/ROI/ROI-1-25-2021.pdf",width=6,height=4)
+ggsave("output/figures/ROI/ROI-5-9-2022.pdf",width=6,height=4)
 
 #order of ar dimensions 
 #1-fmsyvec, #2-response variable dimension, #3-phivec, #4-A values, #5-b.start

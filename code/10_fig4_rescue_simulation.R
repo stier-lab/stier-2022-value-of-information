@@ -12,18 +12,18 @@ source("code/3_mse_model.R") #load MSE model "est.NPV" and wrapper to repeat mod
 years = 50
 B.vec <-c(70)#seq(50,100, by = 10) #MCS: used to be by 5
 avec <- c(10) #biomass at which allee effect occurs
-phivec <- seq(0.1,0.5,by = 0.01) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
-FMSYvec <- seq(.1,2,by = 0.01) #manipulating FMSY max.F
+phivec <- seq(0.1,0.5,by = 0.05) #uncertainty cv MCS: CV of biomass? or survey cv of biomass?
+FMSYvec <- seq(.1,2,by = 0.1) #manipulating FMSY max.F
 
 #create empty array with labels
-ar <- array(dim=c(length(FMSYvec),13,length(phivec),length(avec),length(B.vec)))
+ar <- array(dim=c(length(FMSYvec),14,length(phivec),length(avec),length(B.vec)))
 dimnames(ar) = list(FMSYvec,c("NPV","Prob.Cross.TP","Biomass","CumulativeYield",
                               "SDBiomass","Ptip.MGMT","Fmsy","max.F.2",
-                              "yrs.near.thresh1","yrs.near.thresh2","rescue","prob_rescue","prob_rescue2"),
+                              "yrs.near.thresh1","yrs.near.thresh2","rescue","prob_rescue","prob_rescue2","dangers"),
                     phivec,paste("A =",avec),B.vec)
 
 #set number of iterations 
-n.iters = 5000
+n.iters = 500
 rm(.Random.seed)
 phi.seeds<-round(1000000*runif(n.iters),0)
 process.seeds<-round(1000000*runif(n.iters),0)
@@ -66,6 +66,8 @@ for(b in 1:length(B.vec)){
         ar[i,11,j,a,b]<-median(value$rescue) #number of rescues
         ar[i,12,j,a,b]<-length(which(value$rescue>0))/length(value$rescue) #probability of rescue /#rescues
         ar[i,13,j,a,b]<-mean(value$rescue_prob,na.rm=TRUE)  #prob rescue 2 ignoring nas
+        ar[i,14,j,a,b]<-length(which(value$dangers==50))/n.iters
+        
       }
     }
   }

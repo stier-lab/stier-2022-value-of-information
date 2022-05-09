@@ -111,42 +111,42 @@ est.NPV <- function(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.s
   phi.CV <-phi.CV
   rescue <- colSums(temp_mat,na.rm=T)[1] #number of times recovered from overharvest 
   rescue_prob<- colSums(temp_mat,na.rm=T)[1]/colSums(temp_mat,na.rm=T)[2]#fraction of times dipped into danger then reocviered
-  
+  dangers<-colSums(temp_mat,na.rm=T)[2]
   moncost<-sum(ci*exp(-cs*phi.CV),na.rm=T)
   #moncost <-sum(cm/phi.CV,na.rm=T) #monitoring cost is the cm constatn (just a random number) divided by the cv. 
   #moncost<-sum(-10*cm*phi.CV+50,na.rm=T) #to show that adaptive monitoring is same price when linear
-  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue=rescue,rescue_prob=rescue_prob))
+  return(list(NPV=NPV,Y=Y.vec,B=B.vec,Bhat=Bhat.vec,BB=BB,TP=TP,TPBMSY=TPBMSY,phi.CV=phi.CV,cost.monitor=moncost,pF=F.vec,rescue=rescue,rescue_prob=rescue_prob,dangers=dangers))
 }
 
 
 ####
 #Test est.NPV function
 ####
-# 
-# source("code/2_model_parameters.R") # load base parameters
-# 
-# mf0.5<-max.F*0.5
-# mf1.3<-max.F*1.3
-# mf1.9<-max.F*1.9
-# phi.CV.low=phi.CV.high=0.5
-# A=10
-# B.start=75
-# years=50
-# 
-# t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
-# print(t)
-# 
-# 
-# plot(t$phi.CV[-1])
-# 
-# 
-# plot(t$B,type="l",xlim=c(0,51),ylim=c(0,150))
-# lines(t$Bhat,col=3,lty=2)
-# abline(h = A,col='red')
-# threshold = 0.8*Bmsy
-# abline(h = threshold,col='red',lty=2)
-# t$rescue_prob
-# t
+
+source("code/2_model_parameters.R") # load base parameters
+
+mf0.5<-max.F*0.5
+mf1.3<-max.F*1.3
+mf1.9<-max.F*1.9
+phi.CV.low=phi.CV.high=0.5
+A=10
+B.start=75
+years=50
+
+t<-est.NPV(years,K,A,r,phi.CV.low,phi.CV.high,delta,process.noise,p,B.start,B.lim,B.crit,max.F=mf1.9,phi.CV.seed,process.noise.seed,c)
+print(t)
+
+
+plot(t$phi.CV[-1])
+
+
+plot(t$B,type="l",xlim=c(0,51),ylim=c(0,150))
+lines(t$Bhat,col=3,lty=2)
+abline(h = A,col='red')
+threshold = 0.8*Bmsy
+abline(h = threshold,col='red',lty=2)
+t$rescue_prob
+t
 
 
 
@@ -171,7 +171,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   thresh2 <- thresh1 <- rep(NA,n.iters)
   rescue<-rep(NA,n.iters)
   rescue_prob<-rep(NA,n.iters)
-  
+  dangers<-rep(NA,n.iters)
   
   for (i in 1:n.iters){
     
@@ -194,6 +194,7 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
     thresh2[i] <- dangerzone(B.vec = model.output$B, A = A, thresh = 0.8*Bmsy) 
     rescue[i]  <- length(which(model.output$B <0.8*Bmsy & model.output$B>A)) #number of years ovharvested but not collapsed
     rescue_prob[i] <- model.output$rescue_prob #probability of recovery whn dip
+    dangers[i]<-length(which(model.output$B>0.8*Bmsy))
     #could consider a weighted rescue prob that is based on whether collapse happened
    
     
@@ -210,48 +211,48 @@ repeat.model2<-function(n.iters,B.start,B.lim,years,K,A,r,phi.CV,delta,process.n
   return(list(value=value,BB=BB,TP=TP,TPBMSY=TPBMSY,dB=dB,
               B=B,Y=Y,phi.CV=phi.CV,cost.monitor=cost.monitor,
               NPV_minusCM=NPV_minusCM,pFmax=pFmax,
-              thresh1=thresh1,thresh2=thresh2,rescue=rescue,rescue_prob=rescue_prob))
+              thresh1=thresh1,thresh2=thresh2,rescue=rescue,rescue_prob=rescue_prob,dangers=dangers))
 }
 
 
 
 
-##########################################################
+#########################################################
 # Test repeat.model2
-##########################################################
-# 
-# start.B.list<-seq(20,100,by=1)
-# 
-# #Set up iterations for repeat model
-# n.iters=100
-# phi.seeds<-round(1000000*runif(n.iters),0)
-# process.seeds<-round(1000000*runif(n.iters),0)
-# 
-# A=10
-# Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
-# B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
-# MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
-# Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
-# 
-# 
-# mf0.5<-Fmsy*0.5
-# mf1.3<-Fmsy*1.3
-# mf1.5<-Fmsy*1.5
-# mf2.0<-Fmsy*2.0
-# phi.CV.low=phi.CV.high=0.5
-# 
-# #not that ptip is very dependent upon the starting density
-# 
-# value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
-# return.value<-median(c(value[[1]]))
-# return.BB<-median(c(value[[2]]))
-# return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A
-# return.TPMGMT<-sum(value[[4]])/n.iters
-# return.dB<-value[[5]]
-# return.B <-value[[6]]
-# return.cm<-value[[9]]
-# value
-# mean(value$rescue_prob,na.rm=T)
+#########################################################
+
+start.B.list<-seq(20,100,by=1)
+
+#Set up iterations for repeat model
+n.iters=100
+phi.seeds<-round(1000000*runif(n.iters),0)
+process.seeds<-round(1000000*runif(n.iters),0)
+
+A=10
+Bmsy<- A/3 + K/3 + (A^2 - A*K + K^2)^(1/2)/3 #Biomass at MSY
+B.lim<-max(A,0.25*Bmsy) # lower biomass limit for harvest control rule
+MSY<-r*Bmsy*(1-Bmsy/K)*(Bmsy/K-A/K) #MSY
+Fmsy<-MSY/Bmsy #Fishing mortality that produces MSY
+
+
+mf0.5<-Fmsy*0.5
+mf1.3<-Fmsy*1.3
+mf1.5<-Fmsy*1.5
+mf2.0<-Fmsy*2.0
+phi.CV.low=phi.CV.high=0.5
+
+#not that ptip is very dependent upon the starting density
+
+value = repeat.model2(n.iters,B.start=70,B.lim,years,K,A,r,phi.CV,delta=.05,process.noise,p,max.F=mf0.5,phi.seeds,process.seeds)
+return.value<-median(c(value[[1]]))
+return.BB<-median(c(value[[2]]))
+return.TP<-sum(value[[3]])/n.iters #fraction of the replicate runs where the population dips below A
+return.TPMGMT<-sum(value[[4]])/n.iters
+return.dB<-value[[5]]
+return.B <-value[[6]]
+return.cm<-value[[9]]
+value
+mean(value$rescue_prob,na.rm=T)
 
 
 

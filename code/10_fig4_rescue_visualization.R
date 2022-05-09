@@ -29,6 +29,15 @@ ggplot(df1w,aes(x=CV,y=pFmsy))+
   theme_pubr(legend="right")
 
 
+ggplot(df1w,aes(x=CV,y=pFmsy))+
+  geom_tile(aes(fill=dangers,colour=dangers))+
+  scale_fill_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("#safe years",14))+
+  scale_colour_gradient(low="#BA2F00",high="#7ACCD7",guide = gc,name=str_wrap("#safe years",14))+
+  xlab("Monitoring Precision")+
+  ylab("Havest Rate (pHmsy)")+
+  theme_pubr(legend="right")
+
+
 #this is just the number of rescues out of times there was a dip
 
 ggplot(df1w,aes(x=CV,y=pFmsy))+
@@ -64,10 +73,10 @@ gg_tip<-ggplot(df1w,aes(x=CV,y=pFmsy))+
 #fraction of time series where B < 0.8*Bmsy
 gg_danger<-ggplot(df1w,aes(x=CV,y=pFmsy))+
   geom_tile(aes(fill=yrs.near.thresh1,colour=yrs.near.thresh1))+
-  scale_fill_gradient(name="% B<0.8Bmsy",low="dodgerblue",high="firebrick",guide = gc)+
-  scale_colour_gradient(name="% B<0.8Bmsy",low="dodgerblue",high="firebrick",guide = gc)+
-  xlab("CV of Monitoring")+
-  ylab("pFmsy")+
+  scale_fill_gradient(name="% B<0.8Bmsy",low="dodgerblue",high="yellow",guide = gc)+
+  scale_colour_gradient(name="% B<0.8Bmsy",low="dodgerblue",high="yellow",guide = gc)+
+  xlab("Monitoring Precision")+
+  ylab("Havest Rate (pHmsy)")+
   # facet_wrap(~A)+
   theme_pubr(legend="right")
 
