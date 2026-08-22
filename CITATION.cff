@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this repository, cite the paper below."
+title: "Avoiding critical thresholds through effective monitoring"
+authors:
+  - family-names: Stier
+    given-names: Adrian C.
+preferred-citation:
+  type: article
+  title: "Avoiding critical thresholds through effective monitoring"
+  year: 2022
+  journal: "proceedings of the royal socie"
+  doi: 10.1098/rspb.2022.0526
